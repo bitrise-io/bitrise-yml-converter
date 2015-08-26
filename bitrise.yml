@@ -25,27 +25,25 @@ workflows:
 
             # Install dependencies
             go get -u github.com/tools/godep
-            go install github.com/tools/godep
 
             # Check for unhandled errors
             go get -u github.com/kisielk/errcheck
-            go install github.com/kisielk/errcheck
 
             # Go lint
             go get -u github.com/golang/lint/golint
     - script:
-        title: Godeps - GOPATH fix
+        title: Godeps - GOPATH patch
         inputs:
         - content: envman add --key GOPATH --value "$(godep path):$GOPATH"
     - script:
         title: Go Test
         inputs:
-        - content: go test ./...
+        - content: godep go test ./...
     - script:
         title: Err check
         inputs:
-        - content: errcheck -asserts=true -blank=true $(go list ./...)
+        - content: errcheck -asserts=true -blank=true $(godep go list ./...)
     - script:
         title: Go Lint
         inputs:
-        - content: golint $(go list ./...)
+        - content: golint
