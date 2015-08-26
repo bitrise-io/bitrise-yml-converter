@@ -21,13 +21,15 @@ func (input InputModel) getOptions() envmanModels.EnvironmentItemOptionsModel {
 	}
 }
 
-func (input InputModel) convert() envmanModels.EnvironmentItemModel {
+func (input InputModel) convert() (envmanModels.EnvironmentItemModel, error) {
 	environment := envmanModels.EnvironmentItemModel{
 		input.MappedTo:          input.Value,
 		envmanModels.OptionsKey: input.getOptions(),
 	}
-	environment.FillMissingDefaults()
-	return environment
+	if err := environment.FillMissingDefaults(); err != nil {
+		return envmanModels.EnvironmentItemModel{}, err
+	}
+	return environment, nil
 }
 
 // ----------------------------
@@ -40,13 +42,17 @@ func (output OutputModel) getOptions() envmanModels.EnvironmentItemOptionsModel 
 	}
 }
 
-func (output OutputModel) convert() envmanModels.EnvironmentItemModel {
+func (output OutputModel) convert() (envmanModels.EnvironmentItemModel, error) {
 	environment := envmanModels.EnvironmentItemModel{
 		output.MappedTo:         "",
 		envmanModels.OptionsKey: output.getOptions(),
 	}
-	environment.FillMissingDefaults()
-	return environment
+
+	if err := environment.FillMissingDefaults(); err != nil {
+		return envmanModels.EnvironmentItemModel{}, err
+	}
+
+	return environment, nil
 }
 
 // ----------------------------
@@ -62,25 +68,41 @@ func (oldStep StepModel) getStepLibIDVersionData() (string, string, string) {
 	return oldStep.SteplibSource, oldStep.ID, oldStep.VersionTag
 }
 
-func (oldStep StepModel) getInputEnvironments() []envmanModels.EnvironmentItemModel {
+func (oldStep StepModel) getInputEnvironments() ([]envmanModels.EnvironmentItemModel, error) {
 	inputs := []envmanModels.EnvironmentItemModel{}
 	for _, oldInput := range oldStep.Inputs {
-		newInput := oldInput.convert()
+		newInput, err := oldInput.convert()
+		if err != nil {
+			return []envmanModels.EnvironmentItemModel{}, err
+		}
 		inputs = append(inputs, newInput)
 	}
-	return inputs
+	return inputs, nil
 }
 
-func (oldStep StepModel) getOutputEnvironments() []envmanModels.EnvironmentItemModel {
+func (oldStep StepModel) getOutputEnvironments() ([]envmanModels.EnvironmentItemModel, error) {
 	outputs := []envmanModels.EnvironmentItemModel{}
 	for _, oldOutput := range oldStep.Outputs {
-		newOutput := oldOutput.convert()
+		newOutput, err := oldOutput.convert()
+		if err != nil {
+			return []envmanModels.EnvironmentItemModel{}, err
+		}
 		outputs = append(outputs, newOutput)
 	}
-	return outputs
+	return outputs, nil
 }
 
-func (oldStep StepModel) convert() stepmanModels.StepModel {
+func (oldStep StepModel) convert() (stepmanModels.StepModel, error) {
+	inputs, err := oldStep.getInputEnvironments()
+	if err != nil {
+		return stepmanModels.StepModel{}, err
+	}
+
+	outputs, err := oldStep.getOutputEnvironments()
+	if err != nil {
+		return stepmanModels.StepModel{}, err
+	}
+
 	newStep := stepmanModels.StepModel{
 		Title:               pointers.NewStringPtr(oldStep.Name),
 		Description:         pointers.NewStringPtr(oldStep.Description),
@@ -90,34 +112,45 @@ func (oldStep StepModel) convert() stepmanModels.StepModel {
 		ProjectTypeTags:     oldStep.ProjectTypeTags,
 		TypeTags:            oldStep.TypeTags,
 		IsRequiresAdminUser: pointers.NewBoolPtr(oldStep.IsRequiresAdminUser),
-		Inputs:              oldStep.getInputEnvironments(),
-		Outputs:             oldStep.getOutputEnvironments(),
+		Inputs:              inputs,
+		Outputs:             outputs,
 	}
 
-	return newStep
+	return newStep, nil
 }
 
 // ----------------------------
 // --- old WorkflowModel -> new StepModel
 
-func (oldWorkflow WorkflowModel) getEnvironments() []envmanModels.EnvironmentItemModel {
+func (oldWorkflow WorkflowModel) getEnvironments() ([]envmanModels.EnvironmentItemModel, error) {
 	environments := []envmanModels.EnvironmentItemModel{}
 	for _, oldEnv := range oldWorkflow.Environments {
-		newEnv := oldEnv.convert()
+		newEnv, err := oldEnv.convert()
+		if err != nil {
+			return []envmanModels.EnvironmentItemModel{}, err
+		}
 		environments = append(environments, newEnv)
 	}
-	return environments
+	return environments, nil
 }
 
 // Convert ...
-func (oldWorkflow WorkflowModel) Convert() bitriseModels.WorkflowModel {
+func (oldWorkflow WorkflowModel) Convert() (bitriseModels.WorkflowModel, error) {
+	environments, err := oldWorkflow.getEnvironments()
+	if err != nil {
+		return bitriseModels.WorkflowModel{}, err
+	}
+
 	newWorkflow := bitriseModels.WorkflowModel{
-		Environments: oldWorkflow.getEnvironments(),
+		Environments: environments,
 	}
 
 	stepList := []bitriseModels.StepListItemModel{}
 	for _, oldStep := range oldWorkflow.Steps {
-		newStep := oldStep.convert()
+		newStep, err := oldStep.convert()
+		if err != nil {
+			return bitriseModels.WorkflowModel{}, err
+		}
 
 		_, _, version := oldStep.getStepLibIDVersionData()
 
@@ -129,7 +162,7 @@ func (oldWorkflow WorkflowModel) Convert() bitriseModels.WorkflowModel {
 	}
 	newWorkflow.Steps = stepList
 
-	return newWorkflow
+	return newWorkflow, nil
 }
 
 // GetDefaultSteplibSource ...
@@ -146,8 +179,11 @@ func GetDefaultSteplibSource(workflow WorkflowModel) string {
 }
 
 // ConvertToBitriseDataModel ...
-func (oldWorkflow WorkflowModel) ConvertToBitriseDataModel() bitriseModels.BitriseDataModel {
-	workflow := oldWorkflow.Convert()
+func (oldWorkflow WorkflowModel) ConvertToBitriseDataModel() (bitriseModels.BitriseDataModel, error) {
+	workflow, err := oldWorkflow.Convert()
+	if err != nil {
+		return bitriseModels.BitriseDataModel{}, err
+	}
 
 	bitriseData := bitriseModels.BitriseDataModel{
 		FormatVersion: "0.9.8",
@@ -161,5 +197,5 @@ func (oldWorkflow WorkflowModel) ConvertToBitriseDataModel() bitriseModels.Bitri
 		bitriseData.DefaultStepLibSource = defaultStepLibSource
 	}
 
-	return bitriseData
+	return bitriseData, nil
 }
