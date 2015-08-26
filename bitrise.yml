@@ -16,13 +16,27 @@ workflows:
   ci:
     steps:
     - script:
+        title: Godeps
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -e
+            set -v
+
+            # Install dependencies
+            go get -u github.com/tools/godep
+            go install github.com/tools/godep
+            # godep restore
+    - script:
         title: Go Test
         inputs:
         - content: |-
             #!/bin/bash
             set -e
             set -v
-            go test ./...
+
+            # go test ./...
+            godep go test ./...
     - script:
         title: Err check
         inputs:
