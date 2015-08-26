@@ -16,7 +16,7 @@ workflows:
   ci:
     steps:
     - script:
-        title: Godeps
+        title: Install required testing tools
         inputs:
         - content: |-
             #!/bin/bash
@@ -26,38 +26,26 @@ workflows:
             # Install dependencies
             go get -u github.com/tools/godep
             go install github.com/tools/godep
-            # godep restore
-
-            envman add --key GOPATH --value "$(godep path):$GOPATH"
-    - script:
-        title: Go Test
-        inputs:
-        - content: |-
-            #!/bin/bash
-            set -e
-            set -v
-
-            go test ./...
-    - script:
-        title: Err check
-        inputs:
-        - content: |-
-            #!/bin/bash
-            set -e
-            set -v
 
             # Check for unhandled errors
             go get -u github.com/kisielk/errcheck
             go install github.com/kisielk/errcheck
-            errcheck -asserts=true -blank=true $(go list ./...)
-    - script:
-        title: Go Lint
-        inputs:
-        - content: |-
-            #!/bin/bash
-            set -e
-            set -v
 
             # Go lint
             go get -u github.com/golang/lint/golint
-            golint $(go list ./...)
+    - script:
+        title: Godeps - GOPATH fix
+        inputs:
+        - content: envman add --key GOPATH --value "$(godep path):$GOPATH"
+    - script:
+        title: Go Test
+        inputs:
+        - content: go test ./...
+    - script:
+        title: Err check
+        inputs:
+        - content: errcheck -asserts=true -blank=true $(go list ./...)
+    - script:
+        title: Go Lint
+        inputs:
+        - content: golint $(go list ./...)
