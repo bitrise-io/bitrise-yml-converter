@@ -23,7 +23,10 @@ func TestConvertInputModel(t *testing.T) {
 		IsDontChangeValue: false,
 	}
 
-	newInput := input.convert()
+	newInput, err := input.convert()
+	if err != nil {
+		t.Fatal("Failed to convert environment")
+	}
 
 	key, value, err := newInput.GetKeyValuePair()
 	if err != nil {
@@ -83,7 +86,11 @@ func TestConvertStepModel(t *testing.T) {
 		IsRequiresAdminUser: false,
 	}
 
-	newStep := step.convert()
+	newStep, err := step.convert()
+	if err != nil {
+		t.Fatal("Failed to convert step")
+	}
+
 	if newStep.Title == nil || *newStep.Title != "name" {
 		t.Fatal("Failed to convert newStep.Title")
 	}
@@ -138,7 +145,10 @@ steps:
 		t.Fatal("Failed to parse workflow:", err)
 	}
 
-	newWorkflow := workflow.convert()
+	newWorkflow, err := workflow.Convert()
+	if err != nil {
+		t.Fatal("Failed to convert workflow")
+	}
 	if len(newWorkflow.Steps) != 1 {
 		t.Fatal("Failed to parse workflow:", err)
 	}
