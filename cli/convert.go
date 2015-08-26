@@ -8,8 +8,8 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/codegangsta/cli"
-	"github.com/gkiki90/converter/converter"
-	oldmodels "github.com/gkiki90/converter/models_0_9_0"
+	"github.com/bitrise-io/bitrise-yml-converter/converter"
+	oldmodels "github.com/bitrise-io/bitrise-yml-converter/models_0_9_0"
 )
 
 func convert(c *cli.Context) {

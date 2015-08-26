@@ -4,7 +4,7 @@ import (
 	"os"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/gkiki90/converter/cli"
+	"github.com/bitrise-io/bitrise-yml-converter/cli"
 )
 
 func init() {

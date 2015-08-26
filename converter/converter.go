@@ -8,7 +8,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	bitriseModels "github.com/bitrise-io/bitrise/models/models_1_0_0"
 	"github.com/bitrise-io/go-utils/fileutil"
-	oldmodels "github.com/gkiki90/converter/models_0_9_0"
+	oldmodels "github.com/bitrise-io/bitrise-yml-converter/models_0_9_0"
 	"gopkg.in/yaml.v2"
 )
 
