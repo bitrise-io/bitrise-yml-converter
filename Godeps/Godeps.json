@@ -1,0 +1,47 @@
+{
+	"ImportPath": "github.com/bitrise-io/bitrise-yml-converter",
+	"GoVersion": "go1.4.2",
+	"Deps": [
+		{
+			"ImportPath": "github.com/Sirupsen/logrus",
+			"Comment": "v0.8.3-3-g07d998d",
+			"Rev": "07d998d174c4e2dc90e2f1989a20724220bca1ff"
+		},
+		{
+			"ImportPath": "github.com/bitrise-io/bitrise/models/models_1_0_0",
+			"Comment": "0.9.10-75-g25b0e67",
+			"Rev": "25b0e676ade3e1017b73e634e9197a759409242c"
+		},
+		{
+			"ImportPath": "github.com/bitrise-io/envman/models",
+			"Comment": "0.9.6-5-ga25959b",
+			"Rev": "a25959b22434bf3a71cc59d8fc51063b9ac6ba3f"
+		},
+		{
+			"ImportPath": "github.com/bitrise-io/go-utils/fileutil",
+			"Rev": "5c21da409dc11e064ad595ffa319af30f80f62ec"
+		},
+		{
+			"ImportPath": "github.com/bitrise-io/go-utils/pathutil",
+			"Rev": "5c21da409dc11e064ad595ffa319af30f80f62ec"
+		},
+		{
+			"ImportPath": "github.com/bitrise-io/go-utils/pointers",
+			"Rev": "5c21da409dc11e064ad595ffa319af30f80f62ec"
+		},
+		{
+			"ImportPath": "github.com/bitrise-io/stepman/models",
+			"Comment": "0.9.11-2-g0d53aef",
+			"Rev": "0d53aef2b6b76f431d9d909344c971ce8308d364"
+		},
+		{
+			"ImportPath": "github.com/codegangsta/cli",
+			"Comment": "1.2.0-135-gf998261",
+			"Rev": "f9982619ccace7df963bb7f6d1de3a6f014ff709"
+		},
+		{
+			"ImportPath": "gopkg.in/yaml.v2",
+			"Rev": "c1cd2254a6dd314c9d73c338c12688c9325d85c6"
+		}
+	]
+}
