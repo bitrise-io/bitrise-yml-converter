@@ -27,6 +27,8 @@ workflows:
             go get -u github.com/tools/godep
             go install github.com/tools/godep
             # godep restore
+
+            envman add --key GOPATH --value "$(godep path):$GOPATH"
     - script:
         title: Go Test
         inputs:
@@ -35,8 +37,7 @@ workflows:
             set -e
             set -v
 
-            # go test ./...
-            godep go test ./...
+            go test ./...
     - script:
         title: Err check
         inputs:
@@ -48,7 +49,7 @@ workflows:
             # Check for unhandled errors
             go get -u github.com/kisielk/errcheck
             go install github.com/kisielk/errcheck
-            errcheck -asserts=true -blank=true $(godep go list ./...)
+            errcheck -asserts=true -blank=true $(go list ./...)
     - script:
         title: Go Lint
         inputs:
@@ -59,4 +60,4 @@ workflows:
 
             # Go lint
             go get -u github.com/golang/lint/golint
-            golint $(godep go list ./...)
+            golint $(go list ./...)
