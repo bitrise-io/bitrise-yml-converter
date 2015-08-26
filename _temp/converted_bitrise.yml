@@ -1,0 +1,43 @@
+format_version: 0.9.8
+default_step_lib_source: https://github.com/bitrise-io/bitrise-step-collection
+workflows:
+  target_0:
+    envs:
+    - TEST_ENV: converter
+      opts:
+        title: TEST_ENV
+    steps:
+    - _::https://github.com/bitrise-io/steps-bash-script.git@2.0.0:
+        title: Bash Script Runner
+        description: |
+          Run your own bash script.
+
+          *Note:* you can glue other steps with this step.
+        website: https://github.com/bitrise-io/steps-bash-script
+        source:
+          git: https://github.com/bitrise-io/steps-bash-script.git
+        host_os_tags:
+        - osx-10.9
+        - osx-10.10
+        type_tags:
+        - script
+        - bash
+        - runner
+        is_requires_admin_user: true
+        inputs:
+        - __INPUT_FILE__: |-
+            #!/bin/bash
+
+            echo "Hello Bitrise"
+            echo ${TEST_ENV}
+          opts:
+            title: Type your bash script here
+            description: |
+              max 64 000 characters
+            is_required: true
+        - BASH_SCRIPT_WORKING_DIR: ${BITRISE_SOURCE_DIR}
+          opts:
+            title: Working directory
+            description: |
+              This directory will be set as the current working
+              directory for the script.

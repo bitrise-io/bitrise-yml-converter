@@ -1,0 +1,8 @@
+// single workflow
+converter convert --source /Users/godrei/develop/go/src/github.com/gkiki90/converter/_temp/old_bitrise1.yml --destination /Users/godrei/develop/go/src/github.com/gkiki90/converter/_temp/converted_bitrise.yml
+
+// comma separated
+converter convert --source /Users/godrei/develop/go/src/github.com/gkiki90/converter/_temp/old_bitrise1.yml,/Users/godrei/develop/go/src/github.com/gkiki90/converter/_temp/old_bitrise2.yml --destination /Users/godrei/develop/go/src/github.com/gkiki90/converter/_temp/converted_bitrise.yml
+
+// workflows folder
+converter convert --source /Users/godrei/develop/go/src/github.com/gkiki90/converter/_temp/old_workflows --destination /Users/godrei/develop/go/src/github.com/gkiki90/converter/_temp/converted_bitrise.yml

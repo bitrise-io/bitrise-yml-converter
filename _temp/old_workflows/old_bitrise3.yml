@@ -1,0 +1,61 @@
+---
+format_version: 0.9.0
+environments:
+- title: TEST_ENV
+  mapped_to: TEST_ENV
+  is_expand: true
+  value: converter
+steps:
+- id: bash-script-runner
+  steplib_source: https://github.com/bitrise-io/bitrise-step-collection
+  version_tag: 2.0.0
+  name: Bash Script Runner
+  description: |
+    Run your own bash script.
+
+    *Note:* you can glue other steps with this step.
+  website: https://github.com/bitrise-io/steps-bash-script
+  fork_url: https://github.com/bitrise-io/steps-bash-script
+  source:
+    git: https://github.com/bitrise-io/steps-bash-script.git
+  host_os_tags:
+  - osx-10.9
+  - osx-10.10
+  project_type_tags: []
+  type_tags:
+  - script
+  - bash
+  - runner
+  is_requires_admin_user: true
+  is_always_run: false
+  inputs:
+  - title: Type your bash script here
+    description: |
+      max 64 000 characters
+    mapped_to: __INPUT_FILE__
+    is_expand: true
+    is_required: true
+    value_options: []
+    value: |-
+      #!/bin/bash
+
+      echo "Hello Bitrise"
+      echo ${TEST_ENV}
+    is_dont_change_value: false
+  - title: Working directory
+    description: |
+      This directory will be set as the current working
+      directory for the script.
+    mapped_to: BASH_SCRIPT_WORKING_DIR
+    is_expand: true
+    is_required: false
+    value_options: []
+    value: "${BITRISE_SOURCE_DIR}"
+    is_dont_change_value: false
+  outputs: []
+  log_highlights: []
+  icon_url_256: https://bitrise-stepcollection-assets.s3.amazonaws.com/bash-script-runner/assets/icon_256.png
+  title: Bash Script Runner
+  position_in_workflow: 0
+meta:
+  COMMENT: Exported from Bitrise.io
