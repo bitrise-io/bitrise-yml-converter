@@ -6,9 +6,9 @@ import (
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
+	oldmodels "github.com/bitrise-io/bitrise-yml-converter/models_0_9_0"
 	bitriseModels "github.com/bitrise-io/bitrise/models/models_1_0_0"
 	"github.com/bitrise-io/go-utils/fileutil"
-	oldmodels "github.com/bitrise-io/bitrise-yml-converter/models_0_9_0"
 	"gopkg.in/yaml.v2"
 )
 
@@ -54,7 +54,11 @@ func ConvertOldWorkfowModels(oldWorkflows ...oldmodels.WorkflowModel) (bitriseMo
 	hasDefaultSteplLibSource := true
 	defaultSource := ""
 	for idx, oldWorkflow := range oldWorkflows {
-		newWorkflow := oldWorkflow.Convert()
+		newWorkflow, err := oldWorkflow.Convert()
+		if err != nil {
+			return bitriseModels.BitriseDataModel{}, err
+		}
+
 		newWorkflowName := fmt.Sprintf("target_%d", idx)
 
 		bitriseData.Workflows[newWorkflowName] = newWorkflow
