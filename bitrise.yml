@@ -48,7 +48,7 @@ workflows:
             # Check for unhandled errors
             go get -u github.com/kisielk/errcheck
             go install github.com/kisielk/errcheck
-            errcheck -asserts=true -blank=true $(go list ./...)
+            errcheck -asserts=true -blank=true $(godep go list ./...)
     - script:
         title: Go Lint
         inputs:
@@ -59,4 +59,4 @@ workflows:
 
             # Go lint
             go get -u github.com/golang/lint/golint
-            golint ./...
+            golint $(godep go list ./...)
