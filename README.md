@@ -1,2 +1,2 @@
-# bitrise-yml-converter
-Bitrise YML converter
+# bitrise-converter
+Converter toolkit for Bitrise data models
