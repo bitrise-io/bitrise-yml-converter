@@ -12,6 +12,15 @@ import (
 	"github.com/codegangsta/cli"
 )
 
+func getWorkflowNameFromPath(pth string) string {
+	_, file := filepath.Split(pth)
+	if strings.HasSuffix(file, ".yml") {
+		fileSplit := strings.Split(file, ".yml")
+		file = fileSplit[0]
+	}
+	return file
+}
+
 func convert(c *cli.Context) {
 	// Input validation
 	src := c.String(SourceKey)
@@ -55,26 +64,22 @@ func convert(c *cli.Context) {
 	}
 
 	// Read old workflow
-	oldWorkflows := []oldModels.WorkflowModel{}
+	oldWorkflowMap := map[string]oldModels.WorkflowModel{}
 	for _, srcPth := range sources {
-		if strings.HasPrefix(srcPth, " ") {
-			log.Fatal("Space prefix")
-		}
-		if strings.HasSuffix(srcPth, " ") {
-			log.Fatal("Space suffix")
-		}
 		log.Infoln("Converting workflow at:", srcPth)
 		oldWorkflow, err := converter.ReadOldWorkflowModel(srcPth)
 		if err != nil {
 			log.Fatal("Failed to read old workflow:", err)
 		}
+		oldWorkflowID := getWorkflowNameFromPath(srcPth)
+
 		log.Debugln("Old workflow:")
 		log.Debugf("%#v", oldWorkflow)
-		oldWorkflows = append(oldWorkflows, oldWorkflow)
+		oldWorkflowMap[oldWorkflowID] = oldWorkflow
 	}
 
 	// Convert workflow
-	newConfig, err := converter.ConvertOldWorkfowModels(oldWorkflows...)
+	newConfig, err := converter.ConvertOldWorkfowModels(oldWorkflowMap)
 	if err != nil {
 		log.Fatal("Failed to convert old workflow:", err)
 	}

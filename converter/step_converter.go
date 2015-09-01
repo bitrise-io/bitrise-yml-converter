@@ -3,7 +3,6 @@ package converter
 import (
 	"fmt"
 
-	oldModels "github.com/bitrise-io/bitrise-yml-converter/old_models"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/pointers"
 	stepmanModels "github.com/bitrise-io/stepman/models"
@@ -34,12 +33,7 @@ func getInputByKey(newStep stepmanModels.StepModel, key string) (envmanModels.En
 	return envmanModels.EnvironmentItemModel{}, fmt.Errorf("No Environmnet found for key (%s)", key)
 }
 
-func convertSlack(oldStep oldModels.StepModel) (stepmanModels.StepModel, error) {
-	convertedWorkflowStep, err := oldStep.Convert()
-	if err != nil {
-		return stepmanModels.StepModel{}, err
-	}
-
+func convertSlack(convertedWorkflowStep stepmanModels.StepModel) (stepmanModels.StepModel, error) {
 	stepID := "slack"
 	specStep, err := GetStepFromNewSteplib(stepID, BitriseVerifiedStepLibGitURI)
 	if err != nil {

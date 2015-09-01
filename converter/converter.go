@@ -1,51 +1,97 @@
 package converter
 
 import (
-	"encoding/json"
-	"fmt"
-	"strings"
-
-	log "github.com/Sirupsen/logrus"
-	oldmodels "github.com/bitrise-io/bitrise-yml-converter/models_0_9_0"
-	bitriseModels "github.com/bitrise-io/bitrise/models/models_1_0_0"
-	"github.com/bitrise-io/go-utils/fileutil"
-	"gopkg.in/yaml.v2"
+	oldmodels "github.com/bitrise-io/bitrise-yml-converter/old_models"
+	bitriseModels "github.com/bitrise-io/bitrise/models"
+	stepmanModels "github.com/bitrise-io/stepman/models"
 )
 
-// ReadOldWorkflowModel ...
-func ReadOldWorkflowModel(pth string) (oldmodels.WorkflowModel, error) {
-	bytes, err := fileutil.ReadBytesFromFile(pth)
+func getStepConversionMap() map[string]string {
+	return map[string]string{
+		"https://github.com/bitrise-io/steps-slack-message.git": "slack",
+	}
+}
+
+type stepConverter func(stepmanModels.StepModel) (stepmanModels.StepModel, error)
+
+func getStepConverterFunctionMap() map[string]stepConverter {
+	return map[string]stepConverter{
+		"slack": convertSlack,
+	}
+}
+
+func getNewStepIDAndConverter(stepGitURI string) (string, stepConverter, bool) {
+	stepConversionMap := getStepConversionMap()
+	newID, found := stepConversionMap[stepGitURI]
+	if !found {
+		return "", nil, false
+	}
+
+	converterFunctionMap := getStepConverterFunctionMap()
+	converter, found := converterFunctionMap[newID]
+	if !found {
+		return "", nil, false
+	}
+	return newID, converter, true
+}
+
+// GetDefaultSteplibSource ...
+func GetDefaultSteplibSource(workflow oldmodels.WorkflowModel) string {
+	defaultSource := ""
+	for _, step := range workflow.Steps {
+		if defaultSource == "" {
+			defaultSource = step.SteplibSource
+		} else if defaultSource != step.SteplibSource {
+			return ""
+		}
+	}
+	return defaultSource
+}
+
+// ConvertOldWorkflow ...
+func ConvertOldWorkflow(oldWorkflow oldmodels.WorkflowModel) (bitriseModels.WorkflowModel, error) {
+	environments, err := oldWorkflow.GetEnvironments()
 	if err != nil {
-		return oldmodels.WorkflowModel{}, err
+		return bitriseModels.WorkflowModel{}, err
 	}
 
-	if strings.HasSuffix(pth, ".json") {
-		log.Debugln("=> Using JSON parser for: ", pth)
-		return WorkflowModelFromJSONBytes(bytes)
+	newWorkflow := bitriseModels.WorkflowModel{
+		Environments: environments,
 	}
 
-	log.Debugln("=> Using YAML parser for: ", pth)
-	return WorkflowModelFromYAMLBytes(bytes)
-}
+	stepList := []bitriseModels.StepListItemModel{}
+	for _, oldStep := range oldWorkflow.Steps {
+		newStep, err := oldStep.Convert()
+		if err != nil {
+			return bitriseModels.WorkflowModel{}, err
+		}
 
-// WorkflowModelFromYAMLBytes ...
-func WorkflowModelFromYAMLBytes(bytes []byte) (workflow oldmodels.WorkflowModel, err error) {
-	if err = yaml.Unmarshal(bytes, &workflow); err != nil {
-		return
-	}
-	return
-}
+		stepIDDataString := ""
+		newStepID, converterFunc, found := getNewStepIDAndConverter(newStep.Source.Git)
+		if found {
+			convertedStep, err := converterFunc(newStep)
+			if err != nil {
+				return bitriseModels.WorkflowModel{}, err
+			}
+			newStep = convertedStep
+			stepIDDataString = BitriseVerifiedStepLibGitURI + "::" + newStepID
+		} else {
+			_, _, version := oldStep.GetStepLibIDVersionData()
+			stepIDDataString = "_::" + newStep.Source.Git + "@" + version
+		}
 
-// WorkflowModelFromJSONBytes ...
-func WorkflowModelFromJSONBytes(bytes []byte) (workflow oldmodels.WorkflowModel, err error) {
-	if err = json.Unmarshal(bytes, &workflow); err != nil {
-		return
+		stepListItem := bitriseModels.StepListItemModel{
+			stepIDDataString: newStep,
+		}
+		stepList = append(stepList, stepListItem)
 	}
-	return
+	newWorkflow.Steps = stepList
+
+	return newWorkflow, nil
 }
 
 // ConvertOldWorkfowModels ...
-func ConvertOldWorkfowModels(oldWorkflows ...oldmodels.WorkflowModel) (bitriseModels.BitriseDataModel, error) {
+func ConvertOldWorkfowModels(oldWorkflowMap map[string]oldmodels.WorkflowModel) (bitriseModels.BitriseDataModel, error) {
 	bitriseData := bitriseModels.BitriseDataModel{
 		FormatVersion: "0.9.8",
 		Workflows:     map[string]bitriseModels.WorkflowModel{},
@@ -53,19 +99,17 @@ func ConvertOldWorkfowModels(oldWorkflows ...oldmodels.WorkflowModel) (bitriseMo
 
 	hasDefaultSteplLibSource := true
 	defaultSource := ""
-	for idx, oldWorkflow := range oldWorkflows {
-		newWorkflow, err := oldWorkflow.Convert()
+	for workflowID, oldWorkflow := range oldWorkflowMap {
+		newWorkflow, err := ConvertOldWorkflow(oldWorkflow)
 		if err != nil {
 			return bitriseModels.BitriseDataModel{}, err
 		}
 
-		newWorkflowName := fmt.Sprintf("target_%d", idx)
-
-		bitriseData.Workflows[newWorkflowName] = newWorkflow
+		bitriseData.Workflows[workflowID] = newWorkflow
 
 		if defaultSource == "" {
-			defaultSource = oldmodels.GetDefaultSteplibSource(oldWorkflow)
-		} else if defaultSource != oldmodels.GetDefaultSteplibSource(oldWorkflow) {
+			defaultSource = GetDefaultSteplibSource(oldWorkflow)
+		} else if defaultSource != GetDefaultSteplibSource(oldWorkflow) {
 			hasDefaultSteplLibSource = false
 		}
 	}
@@ -75,16 +119,4 @@ func ConvertOldWorkfowModels(oldWorkflows ...oldmodels.WorkflowModel) (bitriseMo
 	}
 
 	return bitriseData, nil
-}
-
-// WriteNewWorkflowModel ...
-func WriteNewWorkflowModel(pth string, newWorkflow bitriseModels.BitriseDataModel) error {
-	bytes, err := yaml.Marshal(newWorkflow)
-	if err != nil {
-		return err
-	}
-	if err := fileutil.WriteBytesToFile(pth, bytes); err != nil {
-		return err
-	}
-	return nil
 }
