@@ -52,6 +52,43 @@ func GetStepFromNewSteplib(stepID, stepLibGitURI string) (stepmanModels.StepMode
 	return specStep, nil
 }
 
+// GetStepFromGit ...
+func GetStepFromGit(stepGitURI string) (stepmanModels.StepModel, error) {
+	// Activate step - get step.yml
+	tempStepCloneDirPath, err := pathutil.NormalizedOSTempDirPath("step_clone")
+	if err != nil {
+		return stepmanModels.StepModel{}, err
+	}
+	tempStepYMLDirPath, err := pathutil.NormalizedOSTempDirPath("step_yml")
+	if err != nil {
+		return stepmanModels.StepModel{}, err
+	}
+	tempStepYMLFilePath := path.Join(tempStepYMLDirPath, "step.yml")
+
+	if err := cmdex.GitClone(stepGitURI, tempStepCloneDirPath); err != nil {
+		return stepmanModels.StepModel{}, err
+	}
+
+	if err := cmdex.CopyFile(path.Join(tempStepCloneDirPath, "step.yml"), tempStepYMLFilePath); err != nil {
+		return stepmanModels.StepModel{}, err
+	}
+
+	specStep, err := ReadSpecStep(tempStepYMLFilePath)
+	if err != nil {
+		return stepmanModels.StepModel{}, err
+	}
+
+	// Cleanup
+	if err := cmdex.RemoveDir(tempStepCloneDirPath); err != nil {
+		return stepmanModels.StepModel{}, errors.New(fmt.Sprint("Failed to remove step clone dir: ", err))
+	}
+	if err := cmdex.RemoveDir(tempStepYMLDirPath); err != nil {
+		return stepmanModels.StepModel{}, errors.New(fmt.Sprint("Failed to remove step clone dir: ", err))
+	}
+
+	return specStep, nil
+}
+
 // ReadSpecStep ...
 func ReadSpecStep(pth string) (stepmanModels.StepModel, error) {
 	if isExists, err := pathutil.IsPathExists(pth); err != nil {

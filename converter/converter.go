@@ -1,23 +1,55 @@
 package converter
 
 import (
+	"fmt"
+
 	log "github.com/Sirupsen/logrus"
 	oldmodels "github.com/bitrise-io/bitrise-yml-converter/old_models"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	stepmanModels "github.com/bitrise-io/stepman/models"
 )
 
-func getStepConversionMap() map[string]string {
-	return map[string]string{
-		"https://github.com/bitrise-io/steps-slack-message.git": "slack",
+const (
+	// OldSlackGitURI ...
+	OldSlackGitURI = "https://github.com/bitrise-io/steps-slack-message.git"
+	// NewSlackStepID ...
+	NewSlackStepID = "slack"
+
+	// OldHipchatGitURI ...
+	OldHipchatGitURI = "https://github.com/bitrise-io/steps-hipchat.git"
+	// NewHipchatStepID ...
+	NewHipchatStepID = "hipchat"
+
+	// OldGenericScriptRunnerGitURI ...
+	OldGenericScriptRunnerGitURI = "https://github.com/bitrise-io/steps-generic-script-runner.git"
+	// NewScriptStepID ...
+	NewScriptStepID = "script"
+
+	// OlXcodeBuilderFlavorBitriseCreateArchiveGitURI ...
+	OlXcodeBuilderFlavorBitriseCreateArchiveGitURI = "https://github.com/bitrise-io/steps-xcode-builder.git"
+	// NewXcodeArchiveStepID ...
+	NewXcodeArchiveStepID = "xcode-archive"
+)
+
+type stepConverter func(stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error)
+
+// New step ID <-> Converter function
+func getStepConverterFunctionMap() map[string]stepConverter {
+	return map[string]stepConverter{
+		NewSlackStepID:        convertSlack,
+		NewHipchatStepID:      convertHipchat,
+		NewScriptStepID:       converScript,
+		NewXcodeArchiveStepID: converXcodeArchive,
 	}
 }
 
-type stepConverter func(stepmanModels.StepModel) (stepmanModels.StepModel, error)
-
-func getStepConverterFunctionMap() map[string]stepConverter {
-	return map[string]stepConverter{
-		"slack": convertSlack,
+// Old step git URI <-> New step ID
+func getStepConversionMap() map[string]string {
+	return map[string]string{
+		OldSlackGitURI:                                 NewSlackStepID,
+		OldHipchatGitURI:                               NewHipchatStepID,
+		OldGenericScriptRunnerGitURI:                   NewScriptStepID,
+		OlXcodeBuilderFlavorBitriseCreateArchiveGitURI: NewXcodeArchiveStepID,
 	}
 }
 
@@ -67,27 +99,33 @@ func ConvertOldWorkflow(oldWorkflow oldmodels.WorkflowModel) (bitriseModels.Work
 			return bitriseModels.WorkflowModel{}, err
 		}
 
-		stepIDDataString := ""
 		newStepID, converterFunc, found := getNewStepIDAndConverter(newStep.Source.Git)
 		if found {
 			log.Infof("Convertable step found (%s) -> (%s)", newStep.Source.Git, newStepID)
-			convertedStep, err := converterFunc(newStep)
+			fmt.Println()
+
+			convertedStepListItems, err := converterFunc(newStep)
 			if err != nil {
 				return bitriseModels.WorkflowModel{}, err
 			}
-			newStep = convertedStep
-			stepIDDataString = BitriseVerifiedStepLibGitURI + "::" + newStepID
+
+			for _, stepListItem := range convertedStepListItems {
+				stepList = append(stepList, stepListItem)
+			}
+
 		} else {
 			log.Infof("Step (%s) not convertable", newStep.Source.Git)
-			_, _, version := oldStep.GetStepLibIDVersionData()
-			stepIDDataString = "_::" + newStep.Source.Git + "@" + version
-		}
+			fmt.Println()
 
-		log.Infof("Adding step with stepIDData (%s)", stepIDDataString)
-		stepListItem := bitriseModels.StepListItemModel{
-			stepIDDataString: newStep,
+			_, _, version := oldStep.GetStepLibIDVersionData()
+
+			stepIDDataString := "_::" + newStep.Source.Git + "@" + version
+
+			stepListItem := bitriseModels.StepListItemModel{
+				stepIDDataString: newStep,
+			}
+			stepList = append(stepList, stepListItem)
 		}
-		stepList = append(stepList, stepListItem)
 	}
 	newWorkflow.Steps = stepList
 
@@ -97,7 +135,7 @@ func ConvertOldWorkflow(oldWorkflow oldmodels.WorkflowModel) (bitriseModels.Work
 // ConvertOldWorkfowModels ...
 func ConvertOldWorkfowModels(oldWorkflowMap map[string]oldmodels.WorkflowModel) (bitriseModels.BitriseDataModel, error) {
 	bitriseData := bitriseModels.BitriseDataModel{
-		FormatVersion: "0.9.8",
+		FormatVersion: "1.0.0",
 		Workflows:     map[string]bitriseModels.WorkflowModel{},
 	}
 

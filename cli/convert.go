@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -33,6 +34,8 @@ func convert(c *cli.Context) {
 	if len(srcSlice) > 1 {
 		// Comma separated sources
 		log.Info("Converting workflows at:", srcSlice)
+		fmt.Println()
+
 		sources = srcSlice
 	} else {
 		isDir, err := pathutil.IsDirExists(src)
@@ -42,6 +45,8 @@ func convert(c *cli.Context) {
 		if isDir {
 			// Converting workflows in directory
 			log.Info("Converting workflows in dir:", src)
+			fmt.Println()
+
 			if err := filepath.Walk(src, func(path string, f os.FileInfo, err error) error {
 				if filepath.Ext(path) == ".yml" {
 					sources = append(sources, path)
@@ -51,9 +56,13 @@ func convert(c *cli.Context) {
 				log.Fatal("Faild to collect workflow pathes")
 			}
 			log.Info("Converting workflows at:", sources)
+			fmt.Println()
+
 		} else {
 			// Converting single workflow
 			log.Info("Converting single workflows at:", src)
+			fmt.Println()
+
 			sources = append(sources, src)
 		}
 	}
@@ -67,6 +76,8 @@ func convert(c *cli.Context) {
 	oldWorkflowMap := map[string]oldModels.WorkflowModel{}
 	for _, srcPth := range sources {
 		log.Infoln("Converting workflow at:", srcPth)
+		fmt.Println()
+
 		oldWorkflow, err := converter.ReadOldWorkflowModel(srcPth)
 		if err != nil {
 			log.Fatal("Failed to read old workflow:", err)
@@ -94,4 +105,5 @@ func convert(c *cli.Context) {
 	}
 
 	log.Infoln("Converted workflow path:", dstPth)
+	fmt.Println()
 }

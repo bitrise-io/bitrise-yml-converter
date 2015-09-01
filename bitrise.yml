@@ -1,4 +1,4 @@
-format_version: 0.9.10
+format_version: 1.0.0
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 
 app:
@@ -7,6 +7,42 @@ app:
   - GITHUB_RELEASES_URL: https://github.com/bitrise-io/${BITRISE_BIN_NAME}/releases
 
 workflows:
+  dev:
+    envs:
+    - OLD_WORKFLOW_PTH: /Users/godrei/develop/go/src/github.com/bitrise-io/bitrise-yml-converter/_temp/converter_test.yml
+    - NEW_WORKFLOW_PTH: /Users/godrei/develop/go/src/github.com/bitrise-io/bitrise-yml-converter/_temp/converted_bitrise.yml
+    - TARGET_WORKFLOW_NAME: converter_test
+    steps:
+    - script:
+        title: Intsall converter
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -e
+            go install
+    - script:
+        title: Convert old workflow
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -e
+            bitrise-yml-converter convert --source ${OLD_WORKFLOW_PTH}  --destination ${NEW_WORKFLOW_PTH}
+    - script:
+        title: Normalize converted workflow
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -e
+            bitrise normalize -p ${NEW_WORKFLOW_PTH}
+    - script:
+        title: Run converted workflow
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -e
+            bitrise run ${TARGET_WORKFLOW_NAME} -p ${NEW_WORKFLOW_PTH}
+
+
   godeps-update:
     steps:
     - script:
