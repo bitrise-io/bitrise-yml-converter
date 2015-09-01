@@ -1,7 +1,9 @@
 package models
 
 import (
-	bitriseModels "github.com/bitrise-io/bitrise/models/models_1_0_0"
+	"fmt"
+
+	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/pointers"
 	stepmanModels "github.com/bitrise-io/stepman/models"
@@ -92,7 +94,8 @@ func (oldStep StepModel) getOutputEnvironments() ([]envmanModels.EnvironmentItem
 	return outputs, nil
 }
 
-func (oldStep StepModel) convert() (stepmanModels.StepModel, error) {
+// Convert ...
+func (oldStep StepModel) Convert() (stepmanModels.StepModel, error) {
 	inputs, err := oldStep.getInputEnvironments()
 	if err != nil {
 		return stepmanModels.StepModel{}, err
@@ -117,6 +120,16 @@ func (oldStep StepModel) convert() (stepmanModels.StepModel, error) {
 	}
 
 	return newStep, nil
+}
+
+// GetInputByKey ...
+func (oldStep StepModel) GetInputByKey(key string) (InputModel, error) {
+	for _, input := range oldStep.Inputs {
+		if input.MappedTo == key {
+			return input, nil
+		}
+	}
+	return InputModel{}, fmt.Errorf("No input found for key (%s)", key)
 }
 
 // ----------------------------
@@ -147,7 +160,7 @@ func (oldWorkflow WorkflowModel) Convert() (bitriseModels.WorkflowModel, error) 
 
 	stepList := []bitriseModels.StepListItemModel{}
 	for _, oldStep := range oldWorkflow.Steps {
-		newStep, err := oldStep.convert()
+		newStep, err := oldStep.Convert()
 		if err != nil {
 			return bitriseModels.WorkflowModel{}, err
 		}
@@ -155,6 +168,7 @@ func (oldWorkflow WorkflowModel) Convert() (bitriseModels.WorkflowModel, error) 
 		_, _, version := oldStep.getStepLibIDVersionData()
 
 		stepIDDataString := "_::" + newStep.Source.Git + "@" + version
+
 		stepListItem := bitriseModels.StepListItemModel{
 			stepIDDataString: newStep,
 		}

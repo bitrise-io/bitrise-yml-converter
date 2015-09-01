@@ -6,10 +6,10 @@ import (
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/bitrise-io/bitrise-yml-converter/converter"
+	oldModels "github.com/bitrise-io/bitrise-yml-converter/old_models"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/codegangsta/cli"
-	"github.com/bitrise-io/bitrise-yml-converter/converter"
-	oldmodels "github.com/bitrise-io/bitrise-yml-converter/models_0_9_0"
 )
 
 func convert(c *cli.Context) {
@@ -55,7 +55,7 @@ func convert(c *cli.Context) {
 	}
 
 	// Read old workflow
-	oldWorkflows := []oldmodels.WorkflowModel{}
+	oldWorkflows := []oldModels.WorkflowModel{}
 	for _, srcPth := range sources {
 		if strings.HasPrefix(srcPth, " ") {
 			log.Fatal("Space prefix")
