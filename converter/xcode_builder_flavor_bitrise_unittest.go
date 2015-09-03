@@ -60,7 +60,7 @@ func convertXcodeBuilderFlavorBitriseUnittest(convertedWorkflowStep stepmanModel
 				continue
 			}
 
-			workflowInput, err := getInputByKey(diffInputs, workflowInputKey)
+			workflowInput, found, err := getInputByKey(diffInputs, workflowInputKey)
 			if err != nil {
 				return []envmanModels.EnvironmentItemModel{}, err
 			}

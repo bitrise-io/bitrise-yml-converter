@@ -1,8 +1,6 @@
 package converter
 
 import (
-	"fmt"
-
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/pointers"
@@ -21,17 +19,17 @@ const (
 //----------------------
 // Common methods
 
-func getInputByKey(inputs []envmanModels.EnvironmentItemModel, key string) (envmanModels.EnvironmentItemModel, error) {
+func getInputByKey(inputs []envmanModels.EnvironmentItemModel, key string) (envmanModels.EnvironmentItemModel, bool, error) {
 	for _, input := range inputs {
 		aKey, _, err := input.GetKeyValuePair()
 		if err != nil {
-			return envmanModels.EnvironmentItemModel{}, err
+			return envmanModels.EnvironmentItemModel{}, false, err
 		}
 		if aKey == key {
-			return input, nil
+			return input, true, nil
 		}
 	}
-	return envmanModels.EnvironmentItemModel{}, fmt.Errorf("No Environmnet found for key (%s)", key)
+	return envmanModels.EnvironmentItemModel{}, false, nil
 }
 
 func convertStepsInputs(originalInputs, diffInputs []envmanModels.EnvironmentItemModel, conversionMap map[string]string) ([]envmanModels.EnvironmentItemModel, error) {
@@ -48,7 +46,7 @@ func convertStepsInputs(originalInputs, diffInputs []envmanModels.EnvironmentIte
 			continue
 		}
 
-		workflowInput, err := getInputByKey(diffInputs, workflowInputKey)
+		workflowInput, found, err := getInputByKey(diffInputs, workflowInputKey)
 		if err != nil {
 			return []envmanModels.EnvironmentItemModel{}, err
 		}
