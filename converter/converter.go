@@ -2,6 +2,7 @@ package converter
 
 import (
 	"fmt"
+	"strings"
 
 	log "github.com/Sirupsen/logrus"
 	oldmodels "github.com/bitrise-io/bitrise-yml-converter/old_models"
@@ -10,25 +11,35 @@ import (
 )
 
 const (
-	// OldSlackGitURI ...
-	OldSlackGitURI = "https://github.com/bitrise-io/steps-slack-message.git"
-	// NewSlackStepID ...
-	NewSlackStepID = "slack"
+	// OldBitriseIosDeployStepID ...
+	OldBitriseIosDeployStepID = "bitrise-ios-deploy"
+	// NewBitriseIosDeployStepID ...
+	NewBitriseIosDeployStepID = "bitrise-ios-deploy"
 
-	// OldHipchatGitURI ...
-	OldHipchatGitURI = "https://github.com/bitrise-io/steps-hipchat.git"
+	// OldHipchatStepID ...
+	OldHipchatStepID = "hipchat"
 	// NewHipchatStepID ...
 	NewHipchatStepID = "hipchat"
 
-	// OldGenericScriptRunnerGitURI ...
-	OldGenericScriptRunnerGitURI = "https://github.com/bitrise-io/steps-generic-script-runner.git"
+	// OldSlackMessageStepID ...
+	OldSlackMessageStepID = "slack-message"
+	// NewSlackStepID ...
+	NewSlackStepID = "slack"
+
+	// OldGenericScriptRunnerStepID ...
+	OldGenericScriptRunnerStepID = "generic-script-runner"
 	// NewScriptStepID ...
 	NewScriptStepID = "script"
 
-	// OlXcodeBuilderFlavorBitriseCreateArchiveGitURI ...
-	OlXcodeBuilderFlavorBitriseCreateArchiveGitURI = "https://github.com/bitrise-io/steps-xcode-builder.git"
+	// OlXcodeBuilderFlavorBitriseCreateArchiveStepID ...
+	OlXcodeBuilderFlavorBitriseCreateArchiveStepID = "xcode-builder_flavor_bitrise_create-archive"
 	// NewXcodeArchiveStepID ...
 	NewXcodeArchiveStepID = "xcode-archive"
+
+	// OldXcodeBuilderFlavorBitriseUnittestStepID ...
+	OldXcodeBuilderFlavorBitriseUnittestStepID = "xcode-builder_flavor_bitrise_unittest"
+	// NewXcodeTest ...
+	NewXcodeTest = "xcode-test"
 )
 
 type stepConverter func(stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error)
@@ -36,20 +47,24 @@ type stepConverter func(stepmanModels.StepModel) ([]bitriseModels.StepListItemMo
 // New step ID <-> Converter function
 func getStepConverterFunctionMap() map[string]stepConverter {
 	return map[string]stepConverter{
-		NewSlackStepID:        convertSlack,
-		NewHipchatStepID:      convertHipchat,
-		NewScriptStepID:       converScript,
-		NewXcodeArchiveStepID: converXcodeArchive,
+		NewBitriseIosDeployStepID: convertBitriseIosDeploy,
+		NewHipchatStepID:          convertHipchat,
+		NewSlackStepID:            convertSlackMessage,
+		NewScriptStepID:           convertGenericScriptRunner,
+		NewXcodeArchiveStepID:     convertXcodeBuilderFlavorBitriseCreateArchive,
+		NewXcodeTest:              convertXcodeBuilderFlavorBitriseUnittest,
 	}
 }
 
 // Old step git URI <-> New step ID
 func getStepConversionMap() map[string]string {
 	return map[string]string{
-		OldSlackGitURI:                                 NewSlackStepID,
-		OldHipchatGitURI:                               NewHipchatStepID,
-		OldGenericScriptRunnerGitURI:                   NewScriptStepID,
-		OlXcodeBuilderFlavorBitriseCreateArchiveGitURI: NewXcodeArchiveStepID,
+		OldBitriseIosDeployStepID:                      NewBitriseIosDeployStepID,
+		OldHipchatStepID:                               NewHipchatStepID,
+		OldSlackMessageStepID:                          NewSlackStepID,
+		OldGenericScriptRunnerStepID:                   NewScriptStepID,
+		OlXcodeBuilderFlavorBitriseCreateArchiveStepID: NewXcodeArchiveStepID,
+		OldXcodeBuilderFlavorBitriseUnittestStepID:     NewXcodeTest,
 	}
 }
 
@@ -83,14 +98,8 @@ func GetDefaultSteplibSource(workflow oldmodels.WorkflowModel) string {
 
 // ConvertOldWorkflow ...
 func ConvertOldWorkflow(oldWorkflow oldmodels.WorkflowModel) (bitriseModels.WorkflowModel, error) {
-	environments, err := oldWorkflow.GetEnvironments()
-	if err != nil {
-		return bitriseModels.WorkflowModel{}, err
-	}
-
-	newWorkflow := bitriseModels.WorkflowModel{
-		Environments: environments,
-	}
+	// Step conversion
+	containsCertificateStep := false
 
 	stepList := []bitriseModels.StepListItemModel{}
 	for _, oldStep := range oldWorkflow.Steps {
@@ -110,9 +119,21 @@ func ConvertOldWorkflow(oldWorkflow oldmodels.WorkflowModel) (bitriseModels.Work
 			}
 
 			for _, stepListItem := range convertedStepListItems {
+				stepID, _, err := bitriseModels.GetStepIDStepDataPair(stepListItem)
+				if err != nil {
+					return bitriseModels.WorkflowModel{}, err
+				}
+
+				if strings.Contains(stepID, CertificateStepID) {
+					if containsCertificateStep {
+						continue
+					} else {
+						containsCertificateStep = true
+					}
+				}
+
 				stepList = append(stepList, stepListItem)
 			}
-
 		} else {
 			log.Infof("Step (%s) not convertable", newStep.Source.Git)
 			fmt.Println()
@@ -127,9 +148,17 @@ func ConvertOldWorkflow(oldWorkflow oldmodels.WorkflowModel) (bitriseModels.Work
 			stepList = append(stepList, stepListItem)
 		}
 	}
-	newWorkflow.Steps = stepList
 
-	return newWorkflow, nil
+	// Workflow environments
+	environments, err := oldWorkflow.GetEnvironments()
+	if err != nil {
+		return bitriseModels.WorkflowModel{}, err
+	}
+
+	return bitriseModels.WorkflowModel{
+		Environments: environments,
+		Steps:        stepList,
+	}, nil
 }
 
 // ConvertOldWorkfowModels ...

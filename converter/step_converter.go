@@ -12,6 +12,10 @@ import (
 const (
 	// BitriseVerifiedStepLibGitURI ...
 	BitriseVerifiedStepLibGitURI = "https://github.com/bitrise-io/bitrise-steplib.git"
+	// CertificateStepID ...
+	CertificateStepID = "steps-certificate-and-profile-installer"
+	// CertificateStepGitURI ...
+	CertificateStepGitURI = "https://github.com/bitrise-io/steps-certificate-and-profile-installer.git"
 )
 
 //----------------------
@@ -117,101 +121,21 @@ func convertStepAndCreateStepListItem(convertedWorkflowStep stepmanModels.StepMo
 	return []bitriseModels.StepListItemModel{stepListItem}, nil
 }
 
-//----------------------
-// slack
-
-func convertSlack(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
-	newStepID := NewSlackStepID
-	inputConversionMap := map[string]string{
-		"webhook_url":            "SLACK_WEBHOOK_URL",
-		"channel":                "SLACK_CHANNEL",
-		"from_username":          "SLACK_FROM_NAME",
-		"from_username_on_error": "SLACK_ERROR_FROM_NAME",
-		"message":                "SLACK_MESSAGE_TEXT",
-		"message_on_error":       "SLACK_ERROR_MESSAGE_TEXT",
-		"emoji":                  "SLACK_ICON_EMOJI",
-		"emoji_on_error":         "SLACK_ERROR_ICON_EMOJI",
-		"icon_url":               "SLACK_ICON_URL",
-		"icon_url_on_error":      "SLACK_ERROR_ICON_URL",
-	}
-
-	return convertStepAndCreateStepListItem(convertedWorkflowStep, newStepID, inputConversionMap)
-}
-
-//----------------------
-// hipchat
-
-func convertHipchat(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
-	newStepID := NewHipchatStepID
-	inputConversionMap := map[string]string{
-		"auth_token":         "HIPCHAT_TOKEN",
-		"room_id":            "HIPCHAT_ROOMID",
-		"from_name":          "HIPCHAT_FROMNAME",
-		"from_name_on_error": "HIPCHAT_ERROR_FROMNAME",
-		"message":            "HIPCHAT_MESSAGE",
-		"message_on_error":   "HIPCHAT_ERROR_MESSAGE",
-		"color":              "HIPCHAT_MESSAGE_COLOR",
-		"color_on_error":     "HIPCHAT_ERROR_MESSAGE_COLOR",
-	}
-
-	return convertStepAndCreateStepListItem(convertedWorkflowStep, newStepID, inputConversionMap)
-}
-
-//----------------------
-// script
-
-func converScript(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
-	newStepID := NewScriptStepID
-	inputConversionMap := map[string]string{
-		"content":          "GENERIC_SCRIPT_RUNNER_CONTENT",
-		"runner_bin":       "GENERIC_SCRIPT_RUNNER_BIN",
-		"working_dir":      "GENERIC_SCRIPT_RUNNER_WORKING_DIR",
-		"script_file_path": "GENERIC_SCRIPT_RUNNER_SCRIPT_TMP_PATH",
-	}
-
-	return convertStepAndCreateStepListItem(convertedWorkflowStep, newStepID, inputConversionMap)
-}
-
-//----------------------
-// xcode-archive
-
-func converXcodeArchive(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
+func certificateStep() ([]bitriseModels.StepListItemModel, error) {
 	// Cerificate step separated in new StepLib
 	// Step (https://github.com/bitrise-io/steps-certificate-and-profile-installer.git)
 	// need to insert befor Xcode-Archive
-	certificateStepGitURI := "https://github.com/bitrise-io/steps-certificate-and-profile-installer.git"
-	certificateStepTitle := "steps-certificate-and-profile-installer"
-
-	certificateStep, err := GetStepFromGit(certificateStepGitURI)
+	certificateStep, err := GetStepFromGit(CertificateStepGitURI)
 	if err != nil {
 		return []bitriseModels.StepListItemModel{}, err
 	}
 	certificateStep.RunIf = pointers.NewStringPtr(".IsCI")
-	certificateStep.Title = pointers.NewStringPtr(certificateStepTitle)
+	certificateStep.Title = pointers.NewStringPtr(CertificateStepID)
 
-	stepIDDataString := "git::" + certificateStepGitURI + "@master"
-	stepListItems := []bitriseModels.StepListItemModel{
+	stepIDDataString := "git::" + CertificateStepGitURI + "@master"
+	return []bitriseModels.StepListItemModel{
 		bitriseModels.StepListItemModel{
 			stepIDDataString: certificateStep,
 		},
-	}
-
-	// Convert Xcode-Archive step
-	newStepID := NewXcodeArchiveStepID
-	inputConversionMap := map[string]string{
-		"project_path": "XCODE_BUILDER_PROJECT_PATH",
-		"scheme":       "XCODE_BUILDER_SCHEME",
-		// "project_path": "",
-		// "output_dir": "",
-	}
-
-	newStep, err := convertStep(convertedWorkflowStep, newStepID, inputConversionMap)
-	if err != nil {
-		return []bitriseModels.StepListItemModel{}, err
-	}
-
-	stepIDDataString = BitriseVerifiedStepLibGitURI + "::" + newStepID
-	stepListItems = append(stepListItems, bitriseModels.StepListItemModel{stepIDDataString: newStep})
-
-	return stepListItems, nil
+	}, nil
 }
