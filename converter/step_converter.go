@@ -53,11 +53,21 @@ func convertStepsInputs(originalInputs, diffInputs []envmanModels.EnvironmentIte
 		if err != nil {
 			return []envmanModels.EnvironmentItemModel{}, err
 		}
+		if workflowValue == "" {
+			continue
+		}
 
 		workflowOptions, err := workflowInput.GetOptions()
 		if err != nil {
 			return []envmanModels.EnvironmentItemModel{}, err
 		}
+		workflowOptions.Title = nil
+		workflowOptions.Description = nil
+		workflowOptions.Summary = nil
+		workflowOptions.ValueOptions = []string{}
+		workflowOptions.IsRequired = nil
+		workflowOptions.IsDontChangeValue = nil
+		// workflowOptions.IsExpand should be keep
 
 		mergedInput := envmanModels.EnvironmentItemModel{
 			specKey:                 workflowValue,
@@ -77,6 +87,9 @@ func convertStep(convertedWorkflowStep stepmanModels.StepModel, newStepID string
 	}
 	if convertedWorkflowStep.Title != nil && *convertedWorkflowStep.Title != "" {
 		specStep.Title = pointers.NewStringPtr(*convertedWorkflowStep.Title)
+	}
+	if convertedWorkflowStep.IsAlwaysRun != nil {
+		specStep.IsAlwaysRun = pointers.NewBoolPtr(*convertedWorkflowStep.IsAlwaysRun)
 	}
 
 	// Merge new StepLib version inputs, with old workflow defined

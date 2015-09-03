@@ -141,7 +141,11 @@ func ConvertOldWorkfowModels(oldWorkflowMap map[string]oldmodels.WorkflowModel) 
 
 	hasDefaultSteplLibSource := true
 	defaultSource := ""
+	workflowIDs := []string{}
+
 	for workflowID, oldWorkflow := range oldWorkflowMap {
+		workflowIDs = append(workflowIDs, workflowID)
+
 		newWorkflow, err := ConvertOldWorkflow(oldWorkflow)
 		if err != nil {
 			return bitriseModels.BitriseDataModel{}, err
@@ -159,6 +163,17 @@ func ConvertOldWorkfowModels(oldWorkflowMap map[string]oldmodels.WorkflowModel) 
 	if hasDefaultSteplLibSource {
 		bitriseData.DefaultStepLibSource = defaultSource
 	}
+
+	triggerMap := []bitriseModels.TriggerMapItemModel{}
+	for _, workflowID := range workflowIDs {
+		triggerItem := bitriseModels.TriggerMapItemModel{
+			Pattern:              workflowID,
+			IsPullRequestAllowed: true,
+			WorkflowID:           workflowID,
+		}
+		triggerMap = append(triggerMap, triggerItem)
+	}
+	bitriseData.TriggerMap = triggerMap
 
 	return bitriseData, nil
 }
