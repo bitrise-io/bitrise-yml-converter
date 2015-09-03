@@ -1,16 +1,26 @@
 package cli
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/bitrise-io/bitrise-yml-converter/converter"
+	oldModels "github.com/bitrise-io/bitrise-yml-converter/old_models"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/codegangsta/cli"
-	"github.com/bitrise-io/bitrise-yml-converter/converter"
-	oldmodels "github.com/bitrise-io/bitrise-yml-converter/models_0_9_0"
 )
+
+func getWorkflowNameFromPath(pth string) string {
+	_, file := filepath.Split(pth)
+	if strings.HasSuffix(file, ".yml") {
+		fileSplit := strings.Split(file, ".yml")
+		file = fileSplit[0]
+	}
+	return file
+}
 
 func convert(c *cli.Context) {
 	// Input validation
@@ -24,6 +34,8 @@ func convert(c *cli.Context) {
 	if len(srcSlice) > 1 {
 		// Comma separated sources
 		log.Info("Converting workflows at:", srcSlice)
+		fmt.Println()
+
 		sources = srcSlice
 	} else {
 		isDir, err := pathutil.IsDirExists(src)
@@ -33,6 +45,8 @@ func convert(c *cli.Context) {
 		if isDir {
 			// Converting workflows in directory
 			log.Info("Converting workflows in dir:", src)
+			fmt.Println()
+
 			if err := filepath.Walk(src, func(path string, f os.FileInfo, err error) error {
 				if filepath.Ext(path) == ".yml" {
 					sources = append(sources, path)
@@ -42,9 +56,13 @@ func convert(c *cli.Context) {
 				log.Fatal("Faild to collect workflow pathes")
 			}
 			log.Info("Converting workflows at:", sources)
+			fmt.Println()
+
 		} else {
 			// Converting single workflow
 			log.Info("Converting single workflows at:", src)
+			fmt.Println()
+
 			sources = append(sources, src)
 		}
 	}
@@ -55,26 +73,24 @@ func convert(c *cli.Context) {
 	}
 
 	// Read old workflow
-	oldWorkflows := []oldmodels.WorkflowModel{}
+	oldWorkflowMap := map[string]oldModels.WorkflowModel{}
 	for _, srcPth := range sources {
-		if strings.HasPrefix(srcPth, " ") {
-			log.Fatal("Space prefix")
-		}
-		if strings.HasSuffix(srcPth, " ") {
-			log.Fatal("Space suffix")
-		}
 		log.Infoln("Converting workflow at:", srcPth)
+		fmt.Println()
+
 		oldWorkflow, err := converter.ReadOldWorkflowModel(srcPth)
 		if err != nil {
 			log.Fatal("Failed to read old workflow:", err)
 		}
+		oldWorkflowID := getWorkflowNameFromPath(srcPth)
+
 		log.Debugln("Old workflow:")
 		log.Debugf("%#v", oldWorkflow)
-		oldWorkflows = append(oldWorkflows, oldWorkflow)
+		oldWorkflowMap[oldWorkflowID] = oldWorkflow
 	}
 
 	// Convert workflow
-	newConfig, err := converter.ConvertOldWorkfowModels(oldWorkflows...)
+	newConfig, err := converter.ConvertOldWorkfowModels(oldWorkflowMap)
 	if err != nil {
 		log.Fatal("Failed to convert old workflow:", err)
 	}
@@ -89,4 +105,5 @@ func convert(c *cli.Context) {
 	}
 
 	log.Infoln("Converted workflow path:", dstPth)
+	fmt.Println()
 }

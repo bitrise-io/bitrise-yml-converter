@@ -86,7 +86,7 @@ func TestConvertStepModel(t *testing.T) {
 		IsRequiresAdminUser: false,
 	}
 
-	newStep, err := step.convert()
+	newStep, err := step.Convert()
 	if err != nil {
 		t.Fatal("Failed to convert step")
 	}
@@ -122,41 +122,4 @@ func workflowModelFromYAMLBytes(bytes []byte) (workflow WorkflowModel, err error
 		return
 	}
 	return
-}
-
-func TestConvertWorkflow(t *testing.T) {
-	workflowString := `
-format_version: 0.9.0
-environments:
-- title: TEST_ENV
-  mapped_to: TEST_ENV
-  is_expand: false
-  value: converter
-steps:
-- id: bash-script-runner
-  steplib_source: https://github.com/bitrise-io/bitrise-step-collection
-  version_tag: 2.0.0
-  source:
-    git: https://github.com/bitrise-io/steps-bash-script.git
-
-`
-	workflow, err := workflowModelFromYAMLBytes([]byte(workflowString))
-	if err != nil {
-		t.Fatal("Failed to parse workflow:", err)
-	}
-
-	newWorkflow, err := workflow.Convert()
-	if err != nil {
-		t.Fatal("Failed to convert workflow")
-	}
-	if len(newWorkflow.Steps) != 1 {
-		t.Fatal("Failed to parse workflow:", err)
-	}
-	for _, stepListItem := range newWorkflow.Steps {
-		for key := range stepListItem {
-			if key != "_::https://github.com/bitrise-io/steps-bash-script.git@2.0.0" {
-				t.Fatal("Failed to convert workflow: bad steplist item key:", key)
-			}
-		}
-	}
 }
