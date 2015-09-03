@@ -44,7 +44,7 @@ inputs:
 */
 
 func convertSlackMessage(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
-	newStepID := NewSlackStepID
+	newStepID := newSlackStepID
 	inputConversionMap := map[string]string{
 		"webhook_url":            "SLACK_WEBHOOK_URL",
 		"channel":                "SLACK_CHANNEL",

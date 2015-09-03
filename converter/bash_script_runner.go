@@ -30,7 +30,7 @@ inputs:
 */
 
 func convertBashScriptRunner(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
-	newStepID := NewScriptStepID
+	newStepID := newScriptStepID
 
 	inputConversionMap := map[string]string{}
 

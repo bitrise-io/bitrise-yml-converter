@@ -11,38 +11,30 @@ import (
 )
 
 const (
-	// OldBitriseIosDeployStepID ...
-	OldBitriseIosDeployStepID = "bitrise-ios-deploy"
-	// NewBitriseIosDeployStepID ...
-	NewBitriseIosDeployStepID = "bitrise-ios-deploy"
+	oldBitriseIosDeployStepID = "bitrise-ios-deploy"
+	newBitriseIosDeployStepID = "bitrise-ios-deploy"
 
-	// OldHipchatStepID ...
-	OldHipchatStepID = "hipchat"
-	// NewHipchatStepID ...
-	NewHipchatStepID = "hipchat"
+	oldHipchatStepID = "hipchat"
+	newHipchatStepID = "hipchat"
 
-	// OldSlackMessageStepID ...
-	OldSlackMessageStepID = "slack-message"
-	// NewSlackStepID ...
-	NewSlackStepID = "slack"
+	oldSlackMessageStepID = "slack-message"
+	newSlackStepID        = "slack"
 
-	// OldGenericScriptRunnerStepID ...
-	OldGenericScriptRunnerStepID = "generic-script-runner"
-	// NewScriptStepID ...
-	NewScriptStepID = "script"
+	oldGenericScriptRunnerStepID = "generic-script-runner"
+	oldBashScriptRunnerStepID    = "bash-script-runner"
+	newScriptStepID              = "script"
 
-	// OlXcodeBuilderFlavorBitriseCreateArchiveStepID ...
-	OlXcodeBuilderFlavorBitriseCreateArchiveStepID = "xcode-builder_flavor_bitrise_create-archive"
-	// NewXcodeArchiveStepID ...
-	NewXcodeArchiveStepID = "xcode-archive"
+	olXcodeBuilderFlavorBitriseCreateArchiveStepID = "xcode-builder_flavor_bitrise_create-archive"
+	newXcodeArchiveStepID                          = "xcode-archive"
 
-	// OldXcodeBuilderFlavorBitriseUnittestStepID ...
-	OldXcodeBuilderFlavorBitriseUnittestStepID = "xcode-builder_flavor_bitrise_unittest"
-	// NewXcodeTest ...
-	NewXcodeTest = "xcode-test"
+	oldXcodeBuilderFlavorBitriseUnittestStepID = "xcode-builder_flavor_bitrise_unittest"
+	newXcodeTest                               = "xcode-test"
 
-	// OldBashScriptRunnerStepID ...
-	OldBashScriptRunnerStepID = "bash-script-runner"
+	oldActivateSSHKeyFlavorBitriseStepID = "activate-ssh-key_flavor_bitrise"
+	newActivateSSHKeyStepID              = ""
+
+	oldXcodeBuilderFlavorBitriseAnalyzeStepID = "xcode-builder_flavor_bitrise_analyze"
+	newXcodeAnalyzeStepID                     = ""
 )
 
 type stepConverter func(stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error)
@@ -50,26 +42,30 @@ type stepConverter func(stepmanModels.StepModel) ([]bitriseModels.StepListItemMo
 // New step ID <-> Converter function
 func getStepConverterFunctionMap() map[string]stepConverter {
 	return map[string]stepConverter{
-		OldHipchatStepID:                               convertHipchat,
-		OldSlackMessageStepID:                          convertSlackMessage,
-		OldGenericScriptRunnerStepID:                   convertGenericScriptRunner,
-		OldBashScriptRunnerStepID:                      convertBashScriptRunner,
-		OlXcodeBuilderFlavorBitriseCreateArchiveStepID: convertXcodeBuilderFlavorBitriseCreateArchive,
-		OldXcodeBuilderFlavorBitriseUnittestStepID:     convertXcodeBuilderFlavorBitriseUnittest,
-		OldBitriseIosDeployStepID:                      convertBitriseIosDeploy,
+		oldHipchatStepID:                               convertHipchat,
+		oldSlackMessageStepID:                          convertSlackMessage,
+		oldGenericScriptRunnerStepID:                   convertGenericScriptRunner,
+		oldBashScriptRunnerStepID:                      convertBashScriptRunner,
+		olXcodeBuilderFlavorBitriseCreateArchiveStepID: convertXcodeBuilderFlavorBitriseCreateArchive,
+		oldXcodeBuilderFlavorBitriseUnittestStepID:     convertXcodeBuilderFlavorBitriseUnittest,
+		oldBitriseIosDeployStepID:                      convertBitriseIosDeploy,
+		oldActivateSSHKeyFlavorBitriseStepID:           convertActivteSSHKey,
+		oldXcodeBuilderFlavorBitriseAnalyzeStepID:      convertXcodeBuilderFlavorBitriseAnalyze,
 	}
 }
 
-// Old step ID <-> New step ID
+// old step ID <-> New step ID
 func getStepConversionMap() map[string]string {
 	return map[string]string{
-		OldHipchatStepID:                               NewHipchatStepID,
-		OldSlackMessageStepID:                          NewSlackStepID,
-		OldGenericScriptRunnerStepID:                   NewScriptStepID,
-		OldBashScriptRunnerStepID:                      NewScriptStepID,
-		OlXcodeBuilderFlavorBitriseCreateArchiveStepID: NewXcodeArchiveStepID,
-		OldXcodeBuilderFlavorBitriseUnittestStepID:     NewXcodeTest,
-		OldBitriseIosDeployStepID:                      NewBitriseIosDeployStepID,
+		oldHipchatStepID:                               newHipchatStepID,
+		oldSlackMessageStepID:                          newSlackStepID,
+		oldGenericScriptRunnerStepID:                   newScriptStepID,
+		oldBashScriptRunnerStepID:                      newScriptStepID,
+		olXcodeBuilderFlavorBitriseCreateArchiveStepID: newXcodeArchiveStepID,
+		oldXcodeBuilderFlavorBitriseUnittestStepID:     newXcodeTest,
+		oldBitriseIosDeployStepID:                      newBitriseIosDeployStepID,
+		oldActivateSSHKeyFlavorBitriseStepID:           newActivateSSHKeyStepID,
+		oldXcodeBuilderFlavorBitriseAnalyzeStepID:      newXcodeAnalyzeStepID,
 	}
 }
 

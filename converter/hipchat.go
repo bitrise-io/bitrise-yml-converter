@@ -39,7 +39,7 @@ inputs:
 */
 
 func convertHipchat(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
-	newStepID := NewHipchatStepID
+	newStepID := newHipchatStepID
 	inputConversionMap := map[string]string{
 		"auth_token":         "HIPCHAT_TOKEN",
 		"room_id":            "HIPCHAT_ROOMID",

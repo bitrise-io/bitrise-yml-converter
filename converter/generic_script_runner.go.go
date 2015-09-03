@@ -31,7 +31,7 @@ inputs:
 */
 
 func convertGenericScriptRunner(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
-	newStepID := NewScriptStepID
+	newStepID := newScriptStepID
 	inputConversionMap := map[string]string{
 		"content":          "GENERIC_SCRIPT_RUNNER_CONTENT",
 		"runner_bin":       "GENERIC_SCRIPT_RUNNER_BIN",

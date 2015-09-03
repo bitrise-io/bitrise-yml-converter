@@ -50,6 +50,9 @@ func convertStepsInputs(originalInputs, diffInputs []envmanModels.EnvironmentIte
 		if err != nil {
 			return []envmanModels.EnvironmentItemModel{}, err
 		}
+		if !found {
+			continue
+		}
 
 		_, workflowValue, err := workflowInput.GetKeyValuePair()
 		if err != nil {
