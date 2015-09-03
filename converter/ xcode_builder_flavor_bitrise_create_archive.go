@@ -42,7 +42,6 @@ func convertXcodeBuilderFlavorBitriseCreateArchive(convertedWorkflowStep stepman
 		return []bitriseModels.StepListItemModel{}, err
 	}
 
-	// Convert Xcode-Archive step
 	newStepID := NewXcodeArchiveStepID
 	inputConversionMap := map[string]string{
 		"project_path": "XCODE_BUILDER_PROJECT_PATH",

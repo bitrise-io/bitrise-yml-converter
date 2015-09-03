@@ -41,8 +41,7 @@ func convertBitriseIosDeploy(convertedWorkflowStep stepmanModels.StepModel) ([]b
 		return []bitriseModels.StepListItemModel{}, err
 	}
 
-	// Convert Bitrise iOS App Deploy step
-	newStepID := NewXcodeArchiveStepID
+	newStepID := NewBitriseIosDeployStepID
 	inputConversionMap := map[string]string{
 		"build_url":             "STEP_BITRISE_IOS_DEPLOY_BUILD_URL",
 		"build_api_token":       "STEP_BITRISE_IOS_DEPLOY_API_TOKEN",

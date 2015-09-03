@@ -145,12 +145,11 @@ func convertXcodeBuilderFlavorBitriseUnittest(convertedWorkflowStep stepmanModel
 	}
 
 	// Convert Xcode test step
-	newStepID := NewXcodeArchiveStepID
+	newStepID := NewXcodeTest
 	inputConversionMap := map[string]string{
-		"project_path":         "XCODE_BUILDER_PROJECT_PATH",
-		"scheme":               "XCODE_BUILDER_SCHEME",
-		"simulator_device":     "XCODE_BUILDER_UNITTEST_PLATFORM_NAME",
-		"simulator_os_version": "",
+		"project_path":     "XCODE_BUILDER_PROJECT_PATH",
+		"scheme":           "XCODE_BUILDER_SCHEME",
+		"simulator_device": "XCODE_BUILDER_UNITTEST_PLATFORM_NAME",
 	}
 
 	newStep, err := convertStep(convertedWorkflowStep, newStepID, inputConversionMap)

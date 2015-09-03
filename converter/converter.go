@@ -40,6 +40,9 @@ const (
 	OldXcodeBuilderFlavorBitriseUnittestStepID = "xcode-builder_flavor_bitrise_unittest"
 	// NewXcodeTest ...
 	NewXcodeTest = "xcode-test"
+
+	// OldBashScriptRunnerStepID ...
+	OldBashScriptRunnerStepID = "bash-script-runner"
 )
 
 type stepConverter func(stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error)
@@ -47,36 +50,38 @@ type stepConverter func(stepmanModels.StepModel) ([]bitriseModels.StepListItemMo
 // New step ID <-> Converter function
 func getStepConverterFunctionMap() map[string]stepConverter {
 	return map[string]stepConverter{
-		NewBitriseIosDeployStepID: convertBitriseIosDeploy,
-		NewHipchatStepID:          convertHipchat,
-		NewSlackStepID:            convertSlackMessage,
-		NewScriptStepID:           convertGenericScriptRunner,
-		NewXcodeArchiveStepID:     convertXcodeBuilderFlavorBitriseCreateArchive,
-		NewXcodeTest:              convertXcodeBuilderFlavorBitriseUnittest,
+		OldHipchatStepID:                               convertHipchat,
+		OldSlackMessageStepID:                          convertSlackMessage,
+		OldGenericScriptRunnerStepID:                   convertGenericScriptRunner,
+		OldBashScriptRunnerStepID:                      convertBashScriptRunner,
+		OlXcodeBuilderFlavorBitriseCreateArchiveStepID: convertXcodeBuilderFlavorBitriseCreateArchive,
+		OldXcodeBuilderFlavorBitriseUnittestStepID:     convertXcodeBuilderFlavorBitriseUnittest,
+		OldBitriseIosDeployStepID:                      convertBitriseIosDeploy,
 	}
 }
 
-// Old step git URI <-> New step ID
+// Old step ID <-> New step ID
 func getStepConversionMap() map[string]string {
 	return map[string]string{
-		OldBitriseIosDeployStepID:                      NewBitriseIosDeployStepID,
 		OldHipchatStepID:                               NewHipchatStepID,
 		OldSlackMessageStepID:                          NewSlackStepID,
 		OldGenericScriptRunnerStepID:                   NewScriptStepID,
+		OldBashScriptRunnerStepID:                      NewScriptStepID,
 		OlXcodeBuilderFlavorBitriseCreateArchiveStepID: NewXcodeArchiveStepID,
 		OldXcodeBuilderFlavorBitriseUnittestStepID:     NewXcodeTest,
+		OldBitriseIosDeployStepID:                      NewBitriseIosDeployStepID,
 	}
 }
 
-func getNewStepIDAndConverter(stepGitURI string) (string, stepConverter, bool) {
+func getNewStepIDAndConverter(oldStepID string) (string, stepConverter, bool) {
 	stepConversionMap := getStepConversionMap()
-	newID, found := stepConversionMap[stepGitURI]
+	newID, found := stepConversionMap[oldStepID]
 	if !found {
 		return "", nil, false
 	}
 
 	converterFunctionMap := getStepConverterFunctionMap()
-	converter, found := converterFunctionMap[newID]
+	converter, found := converterFunctionMap[oldStepID]
 	if !found {
 		return "", nil, false
 	}
@@ -103,14 +108,15 @@ func ConvertOldWorkflow(oldWorkflow oldmodels.WorkflowModel) (bitriseModels.Work
 
 	stepList := []bitriseModels.StepListItemModel{}
 	for _, oldStep := range oldWorkflow.Steps {
+		oldStepID := oldStep.ID
 		newStep, err := oldStep.Convert()
 		if err != nil {
 			return bitriseModels.WorkflowModel{}, err
 		}
 
-		newStepID, converterFunc, found := getNewStepIDAndConverter(newStep.Source.Git)
+		newStepID, converterFunc, found := getNewStepIDAndConverter(oldStepID)
 		if found {
-			log.Infof("Convertable step found (%s) -> (%s)", newStep.Source.Git, newStepID)
+			log.Infof("Convertable step found (%s) -> (%s)", oldStepID, newStepID)
 			fmt.Println()
 
 			convertedStepListItems, err := converterFunc(newStep)
@@ -135,7 +141,7 @@ func ConvertOldWorkflow(oldWorkflow oldmodels.WorkflowModel) (bitriseModels.Work
 				stepList = append(stepList, stepListItem)
 			}
 		} else {
-			log.Infof("Step (%s) not convertable", newStep.Source.Git)
+			log.Infof("Step (%s) not convertable", oldStepID)
 			fmt.Println()
 
 			_, _, version := oldStep.GetStepLibIDVersionData()
