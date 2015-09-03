@@ -7,6 +7,22 @@ import (
 	stepmanModels "github.com/bitrise-io/stepman/models"
 )
 
+const (
+	// StepRunStatusCodeSuccess ...
+	StepRunStatusCodeSuccess = 0
+	// StepRunStatusCodeFailed ...
+	StepRunStatusCodeFailed = 1
+	// StepRunStatusCodeFailedSkippable ...
+	StepRunStatusCodeFailedSkippable = 2
+	// StepRunStatusCodeSkipped ...
+	StepRunStatusCodeSkipped = 3
+	// StepRunStatusCodeSkippedWithRunIf ...
+	StepRunStatusCodeSkippedWithRunIf = 4
+
+	// Version ...
+	Version = "1.0.0"
+)
+
 // StepListItemModel ...
 type StepListItemModel map[string]stepmanModels.StepModel
 
@@ -29,10 +45,18 @@ type AppModel struct {
 	Environments []envmanModels.EnvironmentItemModel `json:"envs,omitempty" yaml:"envs,omitempty"`
 }
 
+// TriggerMapItemModel ...
+type TriggerMapItemModel struct {
+	Pattern              string `json:"pattern,omitempty" yaml:"pattern,omitempty"`
+	IsPullRequestAllowed bool   `json:"is_pull_request_allowed,omitempty" yaml:"is_pull_request_allowed,omitempty"`
+	WorkflowID           string `json:"workflow,omitempty" yaml:"workflow,omitempty"`
+}
+
 // BitriseDataModel ...
 type BitriseDataModel struct {
 	FormatVersion        string                   `json:"format_version" yaml:"format_version"`
 	DefaultStepLibSource string                   `json:"default_step_lib_source,omitempty" yaml:"default_step_lib_source,omitempty"`
+	TriggerMap           []TriggerMapItemModel    `json:"trigger_map,omitempty" yaml:"trigger_map,omitempty"`
 	App                  AppModel                 `json:"app,omitempty" yaml:"app,omitempty"`
 	Workflows            map[string]WorkflowModel `json:"workflows,omitempty" yaml:"workflows,omitempty"`
 }
@@ -61,6 +85,9 @@ type BuildRunResultsModel struct {
 // StepRunResultsModel ...
 type StepRunResultsModel struct {
 	StepName string
+	Status   int
+	Idx      int
+	RunTime  time.Duration
 	Error    error
 	ExitCode int
 }
