@@ -26,7 +26,7 @@ func getStepConverterFunctionMap() map[string]stepConverter {
 		steps.OldGitCloneFlavorBitriseSSHStepID:                    steps.ConvertGitCloneFlavorBitriseSSH,
 		steps.OldHipchatStepID:                                     steps.ConvertHipchat,
 		steps.OldSlackMessageStepID:                                steps.ConvertSlackMessage,
-		steps.OldActivateSSHKeyFlavorBitriseStepID:                 steps.ConvertActivteSSHKey,
+		steps.OldActivateSSHKeyFlavorBitriseStepID:                 steps.ConvertActivateSSHKeyFlavorBitrise,
 		steps.OldXcodeBuilderFlavorBitriseAnalyzeStepID:            steps.ConvertXcodeBuilderFlavorBitriseAnalyze,
 		steps.OlXcodeBuilderFlavorBitriseCreateArchiveStepID:       steps.ConvertXcodeBuilderFlavorBitriseCreateArchive,
 		steps.OldXcodeBuilderFlavorBitriseUnittestStepID:           steps.ConvertXcodeBuilderFlavorBitriseUnittest,

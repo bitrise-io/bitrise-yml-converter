@@ -14,7 +14,7 @@ const (
 )
 
 //----------------------
-// old name: steps-activate-ssh-key
+// old name: activate-ssh-key_flavor_bitrise
 // new name: activate-ssh-key
 
 /*
@@ -35,8 +35,8 @@ inputs:
 - is_remove_other_identities
 */
 
-// ConvertActivteSSHKey ...
-func ConvertActivteSSHKey(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
+// ConvertActivateSSHKeyFlavorBitrise ...
+func ConvertActivateSSHKeyFlavorBitrise(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
 	newStepID := NewActivateSSHKeyStepID
 	inputConversionMap := map[string]string{
 		"ssh_rsa_private_key":        "SSH_RSA_PRIVATE_KEY",
