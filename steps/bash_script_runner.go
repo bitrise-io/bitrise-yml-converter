@@ -1,8 +1,16 @@
-package converter
+package steps
 
 import (
+	"github.com/bitrise-io/bitrise-yml-converter/utils"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	stepmanModels "github.com/bitrise-io/stepman/models"
+)
+
+const (
+	// OldBashScriptRunnerStepID ...
+	OldBashScriptRunnerStepID = "bash-script-runner"
+	// NewScriptStepID ...
+	NewScriptStepID = "script"
 )
 
 //----------------------
@@ -29,12 +37,13 @@ inputs:
 - script_file_path
 */
 
-func convertBashScriptRunner(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
+// ConvertBashScriptRunner ...
+func ConvertBashScriptRunner(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
 	newStepID := NewScriptStepID
 
 	inputConversionMap := map[string]string{}
 
-	_, found, err := getInputByKey(convertedWorkflowStep.Inputs, "content")
+	_, found, err := utils.GetInputByKey(convertedWorkflowStep.Inputs, "content")
 	if err != nil {
 		return []bitriseModels.StepListItemModel{}, err
 	}
@@ -50,5 +59,5 @@ func convertBashScriptRunner(convertedWorkflowStep stepmanModels.StepModel) ([]b
 		}
 	}
 
-	return convertStepAndCreateStepListItem(convertedWorkflowStep, newStepID, inputConversionMap)
+	return utils.ConvertStepAndCreateStepListItem(convertedWorkflowStep, newStepID, inputConversionMap)
 }

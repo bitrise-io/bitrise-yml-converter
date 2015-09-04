@@ -1,8 +1,16 @@
-package converter
+package steps
 
 import (
+	"github.com/bitrise-io/bitrise-yml-converter/utils"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	stepmanModels "github.com/bitrise-io/stepman/models"
+)
+
+const (
+	// OldHipchatStepID ...
+	OldHipchatStepID = "hipchat"
+	// NewHipchatStepID ...
+	NewHipchatStepID = "hipchat"
 )
 
 //----------------------
@@ -38,7 +46,8 @@ inputs:
 - color_on_error
 */
 
-func convertHipchat(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
+// ConvertHipchat ...
+func ConvertHipchat(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
 	newStepID := NewHipchatStepID
 	inputConversionMap := map[string]string{
 		"auth_token":         "HIPCHAT_TOKEN",
@@ -51,5 +60,5 @@ func convertHipchat(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseMod
 		"color_on_error":     "HIPCHAT_ERROR_MESSAGE_COLOR",
 	}
 
-	return convertStepAndCreateStepListItem(convertedWorkflowStep, newStepID, inputConversionMap)
+	return utils.ConvertStepAndCreateStepListItem(convertedWorkflowStep, newStepID, inputConversionMap)
 }

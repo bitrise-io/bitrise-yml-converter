@@ -9,9 +9,9 @@ app:
 workflows:
   dev:
     envs:
-    - OLD_WORKFLOW_PTH: /Users/godrei/develop/go/src/github.com/bitrise-io/bitrise-yml-converter/_temp/converter_test.yml
-    - NEW_WORKFLOW_PTH: /Users/godrei/develop/go/src/github.com/bitrise-io/bitrise-yml-converter/_temp/converted_bitrise.yml
-    - TARGET_WORKFLOW_NAME: converter_test
+    - OLD_WORKFLOW_PTH: /Users/godrei/develop/go/src/github.com/bitrise-io/bitrise-yml-converter/_temp/original.yml
+    - NEW_WORKFLOW_PTH: /Users/godrei/develop/go/src/github.com/bitrise-io/bitrise-yml-converter/_temp/converted.yml
+    - TARGET_WORKFLOW_NAME: original
     steps:
     - script:
         title: Intsall converter

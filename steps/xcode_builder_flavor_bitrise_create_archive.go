@@ -1,8 +1,16 @@
-package converter
+package steps
 
 import (
+	"github.com/bitrise-io/bitrise-yml-converter/utils"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	stepmanModels "github.com/bitrise-io/stepman/models"
+)
+
+const (
+	// OlXcodeBuilderFlavorBitriseCreateArchiveStepID ...
+	OlXcodeBuilderFlavorBitriseCreateArchiveStepID = "xcode-builder_flavor_bitrise_create-archive"
+	// NewXcodeArchiveStepID ...
+	NewXcodeArchiveStepID = "xcode-archive"
 )
 
 //----------------------
@@ -36,8 +44,9 @@ inputs:
 - output_dir
 */
 
-func convertXcodeBuilderFlavorBitriseCreateArchive(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
-	stepListItems, err := certificateStep()
+// ConvertXcodeBuilderFlavorBitriseCreateArchive ..
+func ConvertXcodeBuilderFlavorBitriseCreateArchive(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
+	stepListItems, err := utils.CertificateStep()
 	if err != nil {
 		return []bitriseModels.StepListItemModel{}, err
 	}
@@ -49,12 +58,12 @@ func convertXcodeBuilderFlavorBitriseCreateArchive(convertedWorkflowStep stepman
 		"output_dir":   "XCODE_BUILDER_DEPLOY_DIR",
 	}
 
-	newStep, err := convertStep(convertedWorkflowStep, newStepID, inputConversionMap)
+	newStep, err := utils.ConvertStep(convertedWorkflowStep, newStepID, inputConversionMap)
 	if err != nil {
 		return []bitriseModels.StepListItemModel{}, err
 	}
 
-	stepIDDataString := BitriseVerifiedStepLibGitURI + "::" + newStepID
+	stepIDDataString := utils.BitriseVerifiedStepLibGitURI + "::" + newStepID
 	stepListItems = append(stepListItems, bitriseModels.StepListItemModel{stepIDDataString: newStep})
 
 	return stepListItems, nil

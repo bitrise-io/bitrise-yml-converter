@@ -6,43 +6,10 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	oldmodels "github.com/bitrise-io/bitrise-yml-converter/old_models"
+	"github.com/bitrise-io/bitrise-yml-converter/steps"
+	"github.com/bitrise-io/bitrise-yml-converter/utils"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	stepmanModels "github.com/bitrise-io/stepman/models"
-)
-
-const (
-	// OldBitriseIosDeployStepID ...
-	OldBitriseIosDeployStepID = "bitrise-ios-deploy"
-	// NewBitriseIosDeployStepID ...
-	NewBitriseIosDeployStepID = "bitrise-ios-deploy"
-
-	// OldHipchatStepID ...
-	OldHipchatStepID = "hipchat"
-	// NewHipchatStepID ...
-	NewHipchatStepID = "hipchat"
-
-	// OldSlackMessageStepID ...
-	OldSlackMessageStepID = "slack-message"
-	// NewSlackStepID ...
-	NewSlackStepID = "slack"
-
-	// OldGenericScriptRunnerStepID ...
-	OldGenericScriptRunnerStepID = "generic-script-runner"
-	// NewScriptStepID ...
-	NewScriptStepID = "script"
-
-	// OlXcodeBuilderFlavorBitriseCreateArchiveStepID ...
-	OlXcodeBuilderFlavorBitriseCreateArchiveStepID = "xcode-builder_flavor_bitrise_create-archive"
-	// NewXcodeArchiveStepID ...
-	NewXcodeArchiveStepID = "xcode-archive"
-
-	// OldXcodeBuilderFlavorBitriseUnittestStepID ...
-	OldXcodeBuilderFlavorBitriseUnittestStepID = "xcode-builder_flavor_bitrise_unittest"
-	// NewXcodeTest ...
-	NewXcodeTest = "xcode-test"
-
-	// OldBashScriptRunnerStepID ...
-	OldBashScriptRunnerStepID = "bash-script-runner"
 )
 
 type stepConverter func(stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error)
@@ -50,42 +17,29 @@ type stepConverter func(stepmanModels.StepModel) ([]bitriseModels.StepListItemMo
 // New step ID <-> Converter function
 func getStepConverterFunctionMap() map[string]stepConverter {
 	return map[string]stepConverter{
-		OldHipchatStepID:                               convertHipchat,
-		OldSlackMessageStepID:                          convertSlackMessage,
-		OldGenericScriptRunnerStepID:                   convertGenericScriptRunner,
-		OldBashScriptRunnerStepID:                      convertBashScriptRunner,
-		OlXcodeBuilderFlavorBitriseCreateArchiveStepID: convertXcodeBuilderFlavorBitriseCreateArchive,
-		OldXcodeBuilderFlavorBitriseUnittestStepID:     convertXcodeBuilderFlavorBitriseUnittest,
-		OldBitriseIosDeployStepID:                      convertBitriseIosDeploy,
+		steps.OldBashScriptRunnerStepID:                            steps.ConvertBashScriptRunner,
+		steps.OldBitriseIosDeployStepID:                            steps.ConvertBitriseIosDeploy,
+		steps.OldCocoapodsAndXcodeRepositoryValidatorFlavorBitrise: steps.ConvertCocoapodsAndXcodeRepositoryValidatorFlavorBitrise,
+		steps.OldCocoapodsFlavorBitriseStepID:                      steps.ConvertCocoapodsFlavorBitrise,
+		steps.OldGenericScriptRunnerStepID:                         steps.ConvertGenericScriptRunner,
+		steps.OldGitCloneFlavorBitriseStepID:                       steps.ConvertGitCloneFlavorBitrise,
+		steps.OldGitCloneFlavorBitriseSSHStepID:                    steps.ConvertGitCloneFlavorBitriseSSH,
+		steps.OldHipchatStepID:                                     steps.ConvertHipchat,
+		steps.OldSlackMessageStepID:                                steps.ConvertSlackMessage,
+		steps.OldActivateSSHKeyFlavorBitriseStepID:                 steps.ConvertActivateSSHKeyFlavorBitrise,
+		steps.OldXcodeBuilderFlavorBitriseAnalyzeStepID:            steps.ConvertXcodeBuilderFlavorBitriseAnalyze,
+		steps.OlXcodeBuilderFlavorBitriseCreateArchiveStepID:       steps.ConvertXcodeBuilderFlavorBitriseCreateArchive,
+		steps.OldXcodeBuilderFlavorBitriseUnittestStepID:           steps.ConvertXcodeBuilderFlavorBitriseUnittest,
 	}
 }
 
-// Old step ID <-> New step ID
-func getStepConversionMap() map[string]string {
-	return map[string]string{
-		OldHipchatStepID:                               NewHipchatStepID,
-		OldSlackMessageStepID:                          NewSlackStepID,
-		OldGenericScriptRunnerStepID:                   NewScriptStepID,
-		OldBashScriptRunnerStepID:                      NewScriptStepID,
-		OlXcodeBuilderFlavorBitriseCreateArchiveStepID: NewXcodeArchiveStepID,
-		OldXcodeBuilderFlavorBitriseUnittestStepID:     NewXcodeTest,
-		OldBitriseIosDeployStepID:                      NewBitriseIosDeployStepID,
-	}
-}
-
-func getNewStepIDAndConverter(oldStepID string) (string, stepConverter, bool) {
-	stepConversionMap := getStepConversionMap()
-	newID, found := stepConversionMap[oldStepID]
-	if !found {
-		return "", nil, false
-	}
-
+func getNewStepIDAndConverter(oldStepID string) (stepConverter, bool) {
 	converterFunctionMap := getStepConverterFunctionMap()
 	converter, found := converterFunctionMap[oldStepID]
 	if !found {
-		return "", nil, false
+		return nil, false
 	}
-	return newID, converter, true
+	return converter, true
 }
 
 // GetDefaultSteplibSource ...
@@ -114,9 +68,9 @@ func ConvertOldWorkflow(oldWorkflow oldmodels.WorkflowModel) (bitriseModels.Work
 			return bitriseModels.WorkflowModel{}, err
 		}
 
-		newStepID, converterFunc, found := getNewStepIDAndConverter(oldStepID)
+		converterFunc, found := getNewStepIDAndConverter(oldStepID)
 		if found {
-			log.Infof("Convertable step found (%s) -> (%s)", oldStepID, newStepID)
+			log.Infof("Convertable step found (%s)", oldStepID)
 			fmt.Println()
 
 			convertedStepListItems, err := converterFunc(newStep)
@@ -130,7 +84,7 @@ func ConvertOldWorkflow(oldWorkflow oldmodels.WorkflowModel) (bitriseModels.Work
 					return bitriseModels.WorkflowModel{}, err
 				}
 
-				if strings.Contains(stepID, CertificateStepID) {
+				if strings.Contains(stepID, utils.CertificateStepID) {
 					if containsCertificateStep {
 						continue
 					} else {

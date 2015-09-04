@@ -1,8 +1,14 @@
-package converter
+package steps
 
 import (
+	"github.com/bitrise-io/bitrise-yml-converter/utils"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	stepmanModels "github.com/bitrise-io/stepman/models"
+)
+
+const (
+	// OldGenericScriptRunnerStepID ...
+	OldGenericScriptRunnerStepID = "generic-script-runner"
 )
 
 //----------------------
@@ -30,7 +36,8 @@ inputs:
 - script_file_path
 */
 
-func convertGenericScriptRunner(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
+// ConvertGenericScriptRunner ...
+func ConvertGenericScriptRunner(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
 	newStepID := NewScriptStepID
 	inputConversionMap := map[string]string{
 		"content":          "GENERIC_SCRIPT_RUNNER_CONTENT",
@@ -39,5 +46,5 @@ func convertGenericScriptRunner(convertedWorkflowStep stepmanModels.StepModel) (
 		"script_file_path": "GENERIC_SCRIPT_RUNNER_SCRIPT_TMP_PATH",
 	}
 
-	return convertStepAndCreateStepListItem(convertedWorkflowStep, newStepID, inputConversionMap)
+	return utils.ConvertStepAndCreateStepListItem(convertedWorkflowStep, newStepID, inputConversionMap)
 }
