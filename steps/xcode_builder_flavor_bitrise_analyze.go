@@ -44,11 +44,24 @@ inputs:
 
 // ConvertXcodeBuilderFlavorBitriseAnalyze ...
 func ConvertXcodeBuilderFlavorBitriseAnalyze(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
+	stepListItems, err := utils.CertificateStep()
+	if err != nil {
+		return []bitriseModels.StepListItemModel{}, err
+	}
+
 	newStepID := NewXcodeAnalyzeStepID
 	inputConversionMap := map[string]string{
 		"project_path": "XCODE_BUILDER_PROJECT_PATH",
 		"scheme":       "XCODE_BUILDER_SCHEME",
 	}
 
-	return utils.ConvertStepAndCreateStepListItem(convertedWorkflowStep, newStepID, inputConversionMap)
+	newStep, err := utils.ConvertStep(convertedWorkflowStep, newStepID, inputConversionMap)
+	if err != nil {
+		return []bitriseModels.StepListItemModel{}, err
+	}
+
+	stepIDDataString := utils.BitriseVerifiedStepLibGitURI + "::" + newStepID
+	stepListItems = append(stepListItems, bitriseModels.StepListItemModel{stepIDDataString: newStep})
+
+	return stepListItems, nil
 }
