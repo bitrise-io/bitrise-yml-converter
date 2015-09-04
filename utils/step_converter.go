@@ -19,85 +19,106 @@ const (
 //----------------------
 // Common methods
 
+//
+// Converted inputs should:
+// * contain all spec inputs
+// * keep all original input value (except empty value: "")
+// * keep original IsExpand value
+//
+// originalInputs: readed from StepLib
+// diffInputs: readed from workflow to convert
+//
 func convertStepsInputs(originalInputs, diffInputs []envmanModels.EnvironmentItemModel, conversionMap map[string]string) ([]envmanModels.EnvironmentItemModel, error) {
-	mergedStepInputs := []envmanModels.EnvironmentItemModel{}
-	for _, specInput := range originalInputs {
-		specKey, _, err := specInput.GetKeyValuePair()
+	convertedInputs := []envmanModels.EnvironmentItemModel{}
+
+	for _, originalInput := range originalInputs {
+		originalInputKey, originalInputValue, err := originalInput.GetKeyValuePair()
 		if err != nil {
 			return []envmanModels.EnvironmentItemModel{}, err
 		}
 
-		workflowInputKey, found := conversionMap[specKey]
+		originalInputOptions, err := originalInput.GetOptions()
+		if err != nil {
+			return []envmanModels.EnvironmentItemModel{}, err
+		}
+
+		conversionInputKey, found := conversionMap[originalInputKey]
 		if found == false {
-			mergedStepInputs = append(mergedStepInputs, specInput)
+			convertedInputs = append(convertedInputs, originalInput)
 			continue
 		}
 
-		workflowInput, found, err := GetInputByKey(diffInputs, workflowInputKey)
+		diffInput, found, err := GetInputByKey(diffInputs, conversionInputKey)
 		if err != nil {
 			return []envmanModels.EnvironmentItemModel{}, err
 		}
 		if !found {
+			convertedInputs = append(convertedInputs, originalInput)
 			continue
 		}
 
-		_, workflowValue, err := workflowInput.GetKeyValuePair()
+		_, diffInputValue, err := diffInput.GetKeyValuePair()
 		if err != nil {
 			return []envmanModels.EnvironmentItemModel{}, err
 		}
-		if workflowValue == "" {
-			continue
+		if diffInputValue == "" {
+			diffInputValue = originalInputValue
 		}
 
-		workflowOptions, err := workflowInput.GetOptions()
+		diffInputOptions, err := diffInput.GetOptions()
 		if err != nil {
 			return []envmanModels.EnvironmentItemModel{}, err
 		}
-		workflowOptions.Title = nil
-		workflowOptions.Description = nil
-		workflowOptions.Summary = nil
-		workflowOptions.ValueOptions = []string{}
-		workflowOptions.IsRequired = nil
-		workflowOptions.IsDontChangeValue = nil
-		// workflowOptions.IsExpand should be keep
 
-		mergedInput := envmanModels.EnvironmentItemModel{
-			specKey:                 workflowValue,
-			envmanModels.OptionsKey: workflowOptions,
+		if diffInputOptions.IsExpand != nil {
+			originalInputOptions.IsExpand = pointers.NewBoolPtr(*diffInputOptions.IsExpand)
 		}
 
-		mergedStepInputs = append(mergedStepInputs, mergedInput)
+		convertedInput := envmanModels.EnvironmentItemModel{
+			originalInputKey:        diffInputValue,
+			envmanModels.OptionsKey: originalInputOptions,
+		}
+
+		convertedInputs = append(convertedInputs, convertedInput)
 	}
-	return mergedStepInputs, nil
+
+	return convertedInputs, nil
 }
 
 // ConvertStep ...
-func ConvertStep(convertedWorkflowStep stepmanModels.StepModel, newStepID string, inputConversionMap map[string]string) (stepmanModels.StepModel, error) {
-	// The new StepLib version of step
-	specStep, err := GetStepFromNewSteplib(newStepID, BitriseVerifiedStepLibGitURI)
+//
+// Converted step should:
+// * keep original Title
+// * keep original IsAlwaysRun
+//
+// newStepID: the id of the new step in new StepLib
+// diffStep: readed from workflow to convert
+//
+func ConvertStep(diffStep stepmanModels.StepModel, newStepID string, inputConversionMap map[string]string) (stepmanModels.StepModel, error) {
+	originalStep, err := GetStepFromNewSteplib(newStepID, BitriseVerifiedStepLibGitURI)
 	if err != nil {
 		return stepmanModels.StepModel{}, err
 	}
-	if convertedWorkflowStep.Title != nil && *convertedWorkflowStep.Title != "" {
-		specStep.Title = pointers.NewStringPtr(*convertedWorkflowStep.Title)
+	if diffStep.Title != nil {
+		originalStep.Title = pointers.NewStringPtr(*diffStep.Title)
 	}
-	if convertedWorkflowStep.IsAlwaysRun != nil {
-		specStep.IsAlwaysRun = pointers.NewBoolPtr(*convertedWorkflowStep.IsAlwaysRun)
+	if diffStep.IsAlwaysRun != nil {
+		originalStep.IsAlwaysRun = pointers.NewBoolPtr(*diffStep.IsAlwaysRun)
 	}
 
 	// Merge new StepLib version inputs, with old workflow defined
-	mergedInputs, err := convertStepsInputs(specStep.Inputs, convertedWorkflowStep.Inputs, inputConversionMap)
+	mergedInputs, err := convertStepsInputs(originalStep.Inputs, diffStep.Inputs, inputConversionMap)
 	if err != nil {
 		return stepmanModels.StepModel{}, err
 	}
-	specStep.Inputs = mergedInputs
+	originalStep.Inputs = mergedInputs
 
-	return specStep, nil
+	return originalStep, nil
 }
 
 // ConvertStepAndCreateStepListItem ...
-func ConvertStepAndCreateStepListItem(convertedWorkflowStep stepmanModels.StepModel, newStepID string, inputConversionMap map[string]string) ([]bitriseModels.StepListItemModel, error) {
-	newStep, err := ConvertStep(convertedWorkflowStep, newStepID, inputConversionMap)
+func ConvertStepAndCreateStepListItem(diffStep stepmanModels.StepModel, newStepID string, inputConversionMap map[string]string) ([]bitriseModels.StepListItemModel, error) {
+	newStep, err := ConvertStep(diffStep, newStepID, inputConversionMap)
 	if err != nil {
 		return []bitriseModels.StepListItemModel{}, err
 	}
@@ -112,10 +133,11 @@ func ConvertStepAndCreateStepListItem(convertedWorkflowStep stepmanModels.StepMo
 }
 
 // CertificateStep ...
+//
+// Cerificate step separated in new StepLib
+// so need to insert befor new Xcode steps
+// Step source: https://github.com/bitrise-io/steps-certificate-and-profile-installer.git
 func CertificateStep() ([]bitriseModels.StepListItemModel, error) {
-	// Cerificate step separated in new StepLib
-	// Step (https://github.com/bitrise-io/steps-certificate-and-profile-installer.git)
-	// need to insert befor Xcode-Archive
 	certificateStep, err := GetStepFromGit(CertificateStepGitURI)
 	if err != nil {
 		return []bitriseModels.StepListItemModel{}, err
