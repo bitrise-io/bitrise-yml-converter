@@ -7,7 +7,7 @@ import (
 
 //----------------------
 // old name: xcode-builder_flavor_bitrise_analyze
-// new name: steps-activate-ssh-key
+// new name: xcode-analyze
 
 /*
 old version source: https://github.com/bitrise-io/steps-activate-ssh-key.git

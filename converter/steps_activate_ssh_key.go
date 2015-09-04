@@ -7,7 +7,7 @@ import (
 
 //----------------------
 // old name: steps-activate-ssh-key
-// new name: steps-activate-ssh-key
+// new name: activate-ssh-key
 
 /*
 old version source: https://github.com/bitrise-io/steps-activate-ssh-key.git
