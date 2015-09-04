@@ -1,8 +1,16 @@
-package converter
+package steps
 
 import (
+	"github.com/bitrise-io/bitrise-yml-converter/utils"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	stepmanModels "github.com/bitrise-io/stepman/models"
+)
+
+const (
+	// OldCocoapodsFlavorBitriseStepID ..
+	OldCocoapodsFlavorBitriseStepID = "cocoapods_flavor_bitrise"
+	// NewCocospodsInstallStepID ...
+	NewCocospodsInstallStepID = "cocoapods-install"
 )
 
 //----------------------
@@ -27,12 +35,13 @@ inputs:
 - is_update_cocoapods
 */
 
-func convertCocoapodsFlavorBitrise(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
-	newStepID := newCocospodsInstallStepID
+// ConvertCocoapodsFlavorBitrise ...
+func ConvertCocoapodsFlavorBitrise(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
+	newStepID := NewCocospodsInstallStepID
 	inputConversionMap := map[string]string{
 		"source_root_path":    "BITRISE_SOURCE_DIR",
 		"is_update_cocoapods": "IS_UPDATE_COCOAPODS",
 	}
 
-	return convertStepAndCreateStepListItem(convertedWorkflowStep, newStepID, inputConversionMap)
+	return utils.ConvertStepAndCreateStepListItem(convertedWorkflowStep, newStepID, inputConversionMap)
 }

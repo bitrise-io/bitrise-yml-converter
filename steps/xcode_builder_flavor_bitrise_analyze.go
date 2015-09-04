@@ -1,8 +1,16 @@
-package converter
+package steps
 
 import (
+	"github.com/bitrise-io/bitrise-yml-converter/utils"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	stepmanModels "github.com/bitrise-io/stepman/models"
+)
+
+const (
+	// OldXcodeBuilderFlavorBitriseAnalyzeStepID ...
+	OldXcodeBuilderFlavorBitriseAnalyzeStepID = "xcode-builder_flavor_bitrise_analyze"
+	// NewXcodeAnalyzeStepID ...
+	NewXcodeAnalyzeStepID = "xcode-analyze"
 )
 
 //----------------------
@@ -34,12 +42,13 @@ inputs:
 - is_clean_build
 */
 
-func convertXcodeBuilderFlavorBitriseAnalyze(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
-	newStepID := newXcodeAnalyzeStepID
+// ConvertXcodeBuilderFlavorBitriseAnalyze ...
+func ConvertXcodeBuilderFlavorBitriseAnalyze(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
+	newStepID := NewXcodeAnalyzeStepID
 	inputConversionMap := map[string]string{
 		"project_path": "XCODE_BUILDER_PROJECT_PATH",
 		"scheme":       "XCODE_BUILDER_SCHEME",
 	}
 
-	return convertStepAndCreateStepListItem(convertedWorkflowStep, newStepID, inputConversionMap)
+	return utils.ConvertStepAndCreateStepListItem(convertedWorkflowStep, newStepID, inputConversionMap)
 }

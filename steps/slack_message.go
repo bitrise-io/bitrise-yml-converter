@@ -1,8 +1,16 @@
-package converter
+package steps
 
 import (
+	"github.com/bitrise-io/bitrise-yml-converter/utils"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	stepmanModels "github.com/bitrise-io/stepman/models"
+)
+
+const (
+	// OldSlackMessageStepID ...
+	OldSlackMessageStepID = "slack-message"
+	// NewSlackStepID ...
+	NewSlackStepID = "slack"
 )
 
 //----------------------
@@ -43,8 +51,9 @@ inputs:
 - icon_url_on_error
 */
 
-func convertSlackMessage(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
-	newStepID := newSlackStepID
+// ConvertSlackMessage ...
+func ConvertSlackMessage(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
+	newStepID := NewSlackStepID
 	inputConversionMap := map[string]string{
 		"webhook_url":            "SLACK_WEBHOOK_URL",
 		"channel":                "SLACK_CHANNEL",
@@ -58,5 +67,5 @@ func convertSlackMessage(convertedWorkflowStep stepmanModels.StepModel) ([]bitri
 		"icon_url_on_error":      "SLACK_ERROR_ICON_URL",
 	}
 
-	return convertStepAndCreateStepListItem(convertedWorkflowStep, newStepID, inputConversionMap)
+	return utils.ConvertStepAndCreateStepListItem(convertedWorkflowStep, newStepID, inputConversionMap)
 }

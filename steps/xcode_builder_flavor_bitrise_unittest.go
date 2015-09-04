@@ -1,12 +1,20 @@
-package converter
+package steps
 
 import (
 	"strings"
 
+	"github.com/bitrise-io/bitrise-yml-converter/utils"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/pointers"
 	stepmanModels "github.com/bitrise-io/stepman/models"
+)
+
+const (
+	// OldXcodeBuilderFlavorBitriseUnittestStepID ...
+	OldXcodeBuilderFlavorBitriseUnittestStepID = "xcode-builder_flavor_bitrise_unittest"
+	// NewXcodeTest ...
+	NewXcodeTest = "xcode-test"
 )
 
 //----------------------
@@ -42,7 +50,8 @@ inputs:
 - is_clean_build
 */
 
-func convertXcodeBuilderFlavorBitriseUnittest(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
+// ConvertXcodeBuilderFlavorBitriseUnittest ...
+func ConvertXcodeBuilderFlavorBitriseUnittest(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
 	simulatorOsVersion := ""
 
 	// Converter function overwrites
@@ -60,7 +69,7 @@ func convertXcodeBuilderFlavorBitriseUnittest(convertedWorkflowStep stepmanModel
 				continue
 			}
 
-			workflowInput, found, err := getInputByKey(diffInputs, workflowInputKey)
+			workflowInput, found, err := utils.GetInputByKey(diffInputs, workflowInputKey)
 			if err != nil {
 				return []envmanModels.EnvironmentItemModel{}, err
 			}
@@ -118,7 +127,7 @@ func convertXcodeBuilderFlavorBitriseUnittest(convertedWorkflowStep stepmanModel
 
 	convertStep := func(convertedWorkflowStep stepmanModels.StepModel, newStepID string, inputConversionMap map[string]string) (stepmanModels.StepModel, error) {
 		// The new StepLib version of step
-		specStep, err := GetStepFromNewSteplib(newStepID, BitriseVerifiedStepLibGitURI)
+		specStep, err := utils.GetStepFromNewSteplib(newStepID, utils.BitriseVerifiedStepLibGitURI)
 		if err != nil {
 			return stepmanModels.StepModel{}, err
 		}
@@ -139,13 +148,13 @@ func convertXcodeBuilderFlavorBitriseUnittest(convertedWorkflowStep stepmanModel
 		return specStep, nil
 	}
 
-	stepListItems, err := certificateStep()
+	stepListItems, err := utils.CertificateStep()
 	if err != nil {
 		return []bitriseModels.StepListItemModel{}, err
 	}
 
 	// Convert Xcode test step
-	newStepID := newXcodeTest
+	newStepID := NewXcodeTest
 	inputConversionMap := map[string]string{
 		"project_path":     "XCODE_BUILDER_PROJECT_PATH",
 		"scheme":           "XCODE_BUILDER_SCHEME",
@@ -157,7 +166,7 @@ func convertXcodeBuilderFlavorBitriseUnittest(convertedWorkflowStep stepmanModel
 		return []bitriseModels.StepListItemModel{}, err
 	}
 
-	stepIDDataString := BitriseVerifiedStepLibGitURI + "::" + newStepID
+	stepIDDataString := utils.BitriseVerifiedStepLibGitURI + "::" + newStepID
 	stepListItems = append(stepListItems, bitriseModels.StepListItemModel{stepIDDataString: newStep})
 
 	return stepListItems, nil

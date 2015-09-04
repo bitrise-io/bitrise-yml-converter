@@ -6,45 +6,10 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	oldmodels "github.com/bitrise-io/bitrise-yml-converter/old_models"
+	"github.com/bitrise-io/bitrise-yml-converter/steps"
+	"github.com/bitrise-io/bitrise-yml-converter/utils"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	stepmanModels "github.com/bitrise-io/stepman/models"
-)
-
-const (
-	oldBitriseIosDeployStepID = "bitrise-ios-deploy"
-	newBitriseIosDeployStepID = "bitrise-ios-deploy"
-
-	oldHipchatStepID = "hipchat"
-	newHipchatStepID = "hipchat"
-
-	oldSlackMessageStepID = "slack-message"
-	newSlackStepID        = "slack"
-
-	oldGenericScriptRunnerStepID = "generic-script-runner"
-	oldBashScriptRunnerStepID    = "bash-script-runner"
-	newScriptStepID              = "script"
-
-	olXcodeBuilderFlavorBitriseCreateArchiveStepID = "xcode-builder_flavor_bitrise_create-archive"
-	newXcodeArchiveStepID                          = "xcode-archive"
-
-	oldXcodeBuilderFlavorBitriseUnittestStepID = "xcode-builder_flavor_bitrise_unittest"
-	newXcodeTest                               = "xcode-test"
-
-	oldActivateSSHKeyFlavorBitriseStepID = "activate-ssh-key_flavor_bitrise"
-	newActivateSSHKeyStepID              = "activate-ssh-key"
-
-	oldXcodeBuilderFlavorBitriseAnalyzeStepID = "xcode-builder_flavor_bitrise_analyze"
-	newXcodeAnalyzeStepID                     = "xcode-analyze"
-
-	oldGitCloneFlavorBitriseSSHStepID = "git-clone_flavor_bitrise_ssh"
-	oldGitCloneFlavorBitriseStepID    = "git-clone_flavor_bitrise"
-	newGitCloneExtendedStepID         = "git-clone-extended"
-
-	oldCocoapodsFlavorBitriseStepID = "cocoapods_flavor_bitrise"
-	newCocospodsInstallStepID       = "cocoapods-install"
-
-	oldCocoapodsAndXcodeRepositoryValidatorFlavorBitrise = "cocoapods-and-xcode-repository-validator_flavor_bitrise"
-	newCocoapodsAndRepositoryValidatorStepID             = "cocoapods-and-repository-validator"
 )
 
 type stepConverter func(stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error)
@@ -52,19 +17,19 @@ type stepConverter func(stepmanModels.StepModel) ([]bitriseModels.StepListItemMo
 // New step ID <-> Converter function
 func getStepConverterFunctionMap() map[string]stepConverter {
 	return map[string]stepConverter{
-		oldHipchatStepID:                                     convertHipchat,
-		oldSlackMessageStepID:                                convertSlackMessage,
-		oldGenericScriptRunnerStepID:                         convertGenericScriptRunner,
-		oldBashScriptRunnerStepID:                            convertBashScriptRunner,
-		olXcodeBuilderFlavorBitriseCreateArchiveStepID:       convertXcodeBuilderFlavorBitriseCreateArchive,
-		oldXcodeBuilderFlavorBitriseUnittestStepID:           convertXcodeBuilderFlavorBitriseUnittest,
-		oldBitriseIosDeployStepID:                            convertBitriseIosDeploy,
-		oldActivateSSHKeyFlavorBitriseStepID:                 convertActivteSSHKey,
-		oldXcodeBuilderFlavorBitriseAnalyzeStepID:            convertXcodeBuilderFlavorBitriseAnalyze,
-		oldGitCloneFlavorBitriseSSHStepID:                    convertGitCloneFlavorBitriseSSH,
-		oldGitCloneFlavorBitriseStepID:                       convertGitCloneFlavorBitrise,
-		oldCocoapodsFlavorBitriseStepID:                      convertCocoapodsFlavorBitrise,
-		oldCocoapodsAndXcodeRepositoryValidatorFlavorBitrise: convertCocoapodsAndXcodeRepositoryValidatorFlavorBitrise,
+		steps.OldBashScriptRunnerStepID:                            steps.ConvertBashScriptRunner,
+		steps.OldBitriseIosDeployStepID:                            steps.ConvertBitriseIosDeploy,
+		steps.OldCocoapodsAndXcodeRepositoryValidatorFlavorBitrise: steps.ConvertCocoapodsAndXcodeRepositoryValidatorFlavorBitrise,
+		steps.OldCocoapodsFlavorBitriseStepID:                      steps.ConvertCocoapodsFlavorBitrise,
+		steps.OldGenericScriptRunnerStepID:                         steps.ConvertGenericScriptRunner,
+		steps.OldGitCloneFlavorBitriseStepID:                       steps.ConvertGitCloneFlavorBitrise,
+		steps.OldGitCloneFlavorBitriseSSHStepID:                    steps.ConvertGitCloneFlavorBitriseSSH,
+		steps.OldHipchatStepID:                                     steps.ConvertHipchat,
+		steps.OldSlackMessageStepID:                                steps.ConvertSlackMessage,
+		steps.OldActivateSSHKeyFlavorBitriseStepID:                 steps.ConvertActivteSSHKey,
+		steps.OldXcodeBuilderFlavorBitriseAnalyzeStepID:            steps.ConvertXcodeBuilderFlavorBitriseAnalyze,
+		steps.OlXcodeBuilderFlavorBitriseCreateArchiveStepID:       steps.ConvertXcodeBuilderFlavorBitriseCreateArchive,
+		steps.OldXcodeBuilderFlavorBitriseUnittestStepID:           steps.ConvertXcodeBuilderFlavorBitriseUnittest,
 	}
 }
 
@@ -119,7 +84,7 @@ func ConvertOldWorkflow(oldWorkflow oldmodels.WorkflowModel) (bitriseModels.Work
 					return bitriseModels.WorkflowModel{}, err
 				}
 
-				if strings.Contains(stepID, CertificateStepID) {
+				if strings.Contains(stepID, utils.CertificateStepID) {
 					if containsCertificateStep {
 						continue
 					} else {

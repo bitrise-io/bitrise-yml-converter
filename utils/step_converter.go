@@ -1,4 +1,4 @@
-package converter
+package utils
 
 import (
 	bitriseModels "github.com/bitrise-io/bitrise/models"
@@ -19,19 +19,6 @@ const (
 //----------------------
 // Common methods
 
-func getInputByKey(inputs []envmanModels.EnvironmentItemModel, key string) (envmanModels.EnvironmentItemModel, bool, error) {
-	for _, input := range inputs {
-		aKey, _, err := input.GetKeyValuePair()
-		if err != nil {
-			return envmanModels.EnvironmentItemModel{}, false, err
-		}
-		if aKey == key {
-			return input, true, nil
-		}
-	}
-	return envmanModels.EnvironmentItemModel{}, false, nil
-}
-
 func convertStepsInputs(originalInputs, diffInputs []envmanModels.EnvironmentItemModel, conversionMap map[string]string) ([]envmanModels.EnvironmentItemModel, error) {
 	mergedStepInputs := []envmanModels.EnvironmentItemModel{}
 	for _, specInput := range originalInputs {
@@ -46,7 +33,7 @@ func convertStepsInputs(originalInputs, diffInputs []envmanModels.EnvironmentIte
 			continue
 		}
 
-		workflowInput, found, err := getInputByKey(diffInputs, workflowInputKey)
+		workflowInput, found, err := GetInputByKey(diffInputs, workflowInputKey)
 		if err != nil {
 			return []envmanModels.EnvironmentItemModel{}, err
 		}
@@ -84,7 +71,8 @@ func convertStepsInputs(originalInputs, diffInputs []envmanModels.EnvironmentIte
 	return mergedStepInputs, nil
 }
 
-func convertStep(convertedWorkflowStep stepmanModels.StepModel, newStepID string, inputConversionMap map[string]string) (stepmanModels.StepModel, error) {
+// ConvertStep ...
+func ConvertStep(convertedWorkflowStep stepmanModels.StepModel, newStepID string, inputConversionMap map[string]string) (stepmanModels.StepModel, error) {
 	// The new StepLib version of step
 	specStep, err := GetStepFromNewSteplib(newStepID, BitriseVerifiedStepLibGitURI)
 	if err != nil {
@@ -107,8 +95,9 @@ func convertStep(convertedWorkflowStep stepmanModels.StepModel, newStepID string
 	return specStep, nil
 }
 
-func convertStepAndCreateStepListItem(convertedWorkflowStep stepmanModels.StepModel, newStepID string, inputConversionMap map[string]string) ([]bitriseModels.StepListItemModel, error) {
-	newStep, err := convertStep(convertedWorkflowStep, newStepID, inputConversionMap)
+// ConvertStepAndCreateStepListItem ...
+func ConvertStepAndCreateStepListItem(convertedWorkflowStep stepmanModels.StepModel, newStepID string, inputConversionMap map[string]string) ([]bitriseModels.StepListItemModel, error) {
+	newStep, err := ConvertStep(convertedWorkflowStep, newStepID, inputConversionMap)
 	if err != nil {
 		return []bitriseModels.StepListItemModel{}, err
 	}
@@ -122,7 +111,8 @@ func convertStepAndCreateStepListItem(convertedWorkflowStep stepmanModels.StepMo
 	return []bitriseModels.StepListItemModel{stepListItem}, nil
 }
 
-func certificateStep() ([]bitriseModels.StepListItemModel, error) {
+// CertificateStep ...
+func CertificateStep() ([]bitriseModels.StepListItemModel, error) {
 	// Cerificate step separated in new StepLib
 	// Step (https://github.com/bitrise-io/steps-certificate-and-profile-installer.git)
 	// need to insert befor Xcode-Archive

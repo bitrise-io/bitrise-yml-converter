@@ -1,8 +1,16 @@
-package converter
+package steps
 
 import (
+	"github.com/bitrise-io/bitrise-yml-converter/utils"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	stepmanModels "github.com/bitrise-io/stepman/models"
+)
+
+const (
+	// OldCocoapodsAndXcodeRepositoryValidatorFlavorBitrise ..
+	OldCocoapodsAndXcodeRepositoryValidatorFlavorBitrise = "cocoapods-and-xcode-repository-validator_flavor_bitrise"
+	// NewCocoapodsAndRepositoryValidatorStepID ...
+	NewCocoapodsAndRepositoryValidatorStepID = "cocoapods-and-repository-validator"
 )
 
 //----------------------
@@ -28,13 +36,14 @@ inputs:
 - scan_only_branch
 */
 
-func convertCocoapodsAndXcodeRepositoryValidatorFlavorBitrise(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
-	newStepID := newCocoapodsAndRepositoryValidatorStepID
+// ConvertCocoapodsAndXcodeRepositoryValidatorFlavorBitrise ...
+func ConvertCocoapodsAndXcodeRepositoryValidatorFlavorBitrise(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
+	newStepID := NewCocoapodsAndRepositoryValidatorStepID
 	inputConversionMap := map[string]string{
 		"source_root_path":    "BITRISE_SOURCE_DIR",
 		"is_update_cocoapods": "IS_UPDATE_COCOAPODS",
 		"scan_only_branch":    "REPO_VALIDATOR_SINGLE_BRANCH",
 	}
 
-	return convertStepAndCreateStepListItem(convertedWorkflowStep, newStepID, inputConversionMap)
+	return utils.ConvertStepAndCreateStepListItem(convertedWorkflowStep, newStepID, inputConversionMap)
 }

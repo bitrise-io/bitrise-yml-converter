@@ -1,8 +1,16 @@
-package converter
+package steps
 
 import (
+	"github.com/bitrise-io/bitrise-yml-converter/utils"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	stepmanModels "github.com/bitrise-io/stepman/models"
+)
+
+const (
+	// OldBitriseIosDeployStepID ...
+	OldBitriseIosDeployStepID = "bitrise-ios-deploy"
+	// NewBitriseIosDeployStepID ...
+	NewBitriseIosDeployStepID = "bitrise-ios-deploy"
 )
 
 //----------------------
@@ -35,13 +43,14 @@ inputs:
 - is_enable_public_page
 */
 
-func convertBitriseIosDeploy(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
-	stepListItems, err := certificateStep()
+// ConvertBitriseIosDeploy ...
+func ConvertBitriseIosDeploy(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
+	stepListItems, err := utils.CertificateStep()
 	if err != nil {
 		return []bitriseModels.StepListItemModel{}, err
 	}
 
-	newStepID := newBitriseIosDeployStepID
+	newStepID := NewBitriseIosDeployStepID
 	inputConversionMap := map[string]string{
 		"build_url":             "STEP_BITRISE_IOS_DEPLOY_BUILD_URL",
 		"build_api_token":       "STEP_BITRISE_IOS_DEPLOY_API_TOKEN",
@@ -51,12 +60,12 @@ func convertBitriseIosDeploy(convertedWorkflowStep stepmanModels.StepModel) ([]b
 		"is_enable_public_page": "STEP_BITRISE_IOS_DEPLOY_ENABLE_PUBLIC_PAGE",
 	}
 
-	newStep, err := convertStep(convertedWorkflowStep, newStepID, inputConversionMap)
+	newStep, err := utils.ConvertStep(convertedWorkflowStep, newStepID, inputConversionMap)
 	if err != nil {
 		return []bitriseModels.StepListItemModel{}, err
 	}
 
-	stepIDDataString := BitriseVerifiedStepLibGitURI + "::" + newStepID
+	stepIDDataString := utils.BitriseVerifiedStepLibGitURI + "::" + newStepID
 	stepListItems = append(stepListItems, bitriseModels.StepListItemModel{stepIDDataString: newStep})
 
 	return stepListItems, nil

@@ -1,8 +1,16 @@
-package converter
+package steps
 
 import (
+	"github.com/bitrise-io/bitrise-yml-converter/utils"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	stepmanModels "github.com/bitrise-io/stepman/models"
+)
+
+const (
+	// OldActivateSSHKeyFlavorBitriseStepID ...
+	OldActivateSSHKeyFlavorBitriseStepID = "activate-ssh-key_flavor_bitrise"
+	// NewActivateSSHKeyStepID ...
+	NewActivateSSHKeyStepID = "activate-ssh-key"
 )
 
 //----------------------
@@ -27,13 +35,14 @@ inputs:
 - is_remove_other_identities
 */
 
-func convertActivteSSHKey(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
-	newStepID := newActivateSSHKeyStepID
+// ConvertActivteSSHKey ...
+func ConvertActivteSSHKey(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
+	newStepID := NewActivateSSHKeyStepID
 	inputConversionMap := map[string]string{
 		"ssh_rsa_private_key":        "SSH_RSA_PRIVATE_KEY",
 		"ssh_key_save_path":          "SSH_KEY_SAVE_PATH",
 		"is_remove_other_identities": "IS_REMOVE_OTHER_IDENTITIES",
 	}
 
-	return convertStepAndCreateStepListItem(convertedWorkflowStep, newStepID, inputConversionMap)
+	return utils.ConvertStepAndCreateStepListItem(convertedWorkflowStep, newStepID, inputConversionMap)
 }

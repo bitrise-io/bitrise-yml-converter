@@ -1,4 +1,4 @@
-package converter
+package utils
 
 import (
 	"encoding/json"
@@ -10,12 +10,27 @@ import (
 	log "github.com/Sirupsen/logrus"
 	oldModels "github.com/bitrise-io/bitrise-yml-converter/old_models"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
+	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/cmdex"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/pathutil"
 	stepmanModels "github.com/bitrise-io/stepman/models"
 	"gopkg.in/yaml.v2"
 )
+
+// GetInputByKey ...
+func GetInputByKey(inputs []envmanModels.EnvironmentItemModel, key string) (envmanModels.EnvironmentItemModel, bool, error) {
+	for _, input := range inputs {
+		aKey, _, err := input.GetKeyValuePair()
+		if err != nil {
+			return envmanModels.EnvironmentItemModel{}, false, err
+		}
+		if aKey == key {
+			return input, true, nil
+		}
+	}
+	return envmanModels.EnvironmentItemModel{}, false, nil
+}
 
 // GetStepFromNewSteplib ...
 func GetStepFromNewSteplib(stepID, stepLibGitURI string) (stepmanModels.StepModel, error) {

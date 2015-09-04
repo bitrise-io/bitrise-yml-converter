@@ -9,6 +9,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/bitrise-io/bitrise-yml-converter/converter"
 	oldModels "github.com/bitrise-io/bitrise-yml-converter/old_models"
+	"github.com/bitrise-io/bitrise-yml-converter/utils"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/codegangsta/cli"
 )
@@ -78,7 +79,7 @@ func convert(c *cli.Context) {
 		log.Infoln("Converting workflow at:", srcPth)
 		fmt.Println()
 
-		oldWorkflow, err := converter.ReadOldWorkflowModel(srcPth)
+		oldWorkflow, err := utils.ReadOldWorkflowModel(srcPth)
 		if err != nil {
 			log.Fatal("Failed to read old workflow:", err)
 		}
@@ -98,7 +99,7 @@ func convert(c *cli.Context) {
 	log.Debugf("%#v", newConfig)
 
 	// Write new wokrflow to file
-	if err := converter.WriteNewWorkflowModel(dstPth, newConfig); err != nil {
+	if err := utils.WriteNewWorkflowModel(dstPth, newConfig); err != nil {
 		if err != nil {
 			log.Fatal("Failed to write new workflow:", err)
 		}
