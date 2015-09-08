@@ -34,6 +34,7 @@ func getStepConverterFunctionMap() map[string]stepConverter {
 		steps.OldItunesConnectDeployWithDeliverFlavorBitriseStepID:  steps.ConvertItunesConnectDeployWithDeliverFlavorBitrise,
 		steps.OldItunesConnectDeployWithShenzhenFlavorBitriseStepID: steps.ConvertItunesConnectDeployWithShenzhenFlavorBitrise,
 		steps.OldRandomQuoteStepID:                                  steps.ConvertRandomQuote,
+		steps.OldAmazonS3UploaderStepID:                             steps.ConvertAmazonS3Uploader,
 	}
 }
 
