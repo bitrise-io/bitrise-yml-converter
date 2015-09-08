@@ -33,6 +33,7 @@ func getStepConverterFunctionMap() map[string]stepConverter {
 		steps.OldCurlPingStepID:                                     steps.ConvertCurlPing,
 		steps.OldItunesConnectDeployWithDeliverFlavorBitriseStepID:  steps.ConvertItunesConnectDeployWithDeliverFlavorBitrise,
 		steps.OldItunesConnectDeployWithShenzhenFlavorBitriseStepID: steps.ConvertItunesConnectDeployWithShenzhenFlavorBitrise,
+		steps.OldRandomQuoteStepID:                                  steps.ConvertRandomQuote,
 	}
 }
 
