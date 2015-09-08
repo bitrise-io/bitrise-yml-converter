@@ -37,6 +37,7 @@ func getStepConverterFunctionMap() map[string]stepConverter {
 		steps.OldAmazonS3UploaderStepID:                             steps.ConvertAmazonS3Uploader,
 		steps.OldTestfairyDeployStepID:                              steps.ConvertTestfairyDeploy,
 		steps.OldFtpUploadStepID:                                    steps.ConvertFtpUpload,
+		steps.OldOsxSecureDeletePathStepID:                          steps.ConvertOsxSecureDeletePath,
 	}
 }
 
