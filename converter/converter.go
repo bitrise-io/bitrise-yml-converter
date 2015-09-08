@@ -17,21 +17,22 @@ type stepConverter func(stepmanModels.StepModel) ([]bitriseModels.StepListItemMo
 // New step ID <-> Converter function
 func getStepConverterFunctionMap() map[string]stepConverter {
 	return map[string]stepConverter{
-		steps.OldBashScriptRunnerStepID:                            steps.ConvertBashScriptRunner,
-		steps.OldBitriseIosDeployStepID:                            steps.ConvertBitriseIosDeploy,
-		steps.OldCocoapodsAndXcodeRepositoryValidatorFlavorBitrise: steps.ConvertCocoapodsAndXcodeRepositoryValidatorFlavorBitrise,
-		steps.OldCocoapodsFlavorBitriseStepID:                      steps.ConvertCocoapodsFlavorBitrise,
-		steps.OldGenericScriptRunnerStepID:                         steps.ConvertGenericScriptRunner,
-		steps.OldGitCloneFlavorBitriseStepID:                       steps.ConvertGitCloneFlavorBitrise,
-		steps.OldGitCloneFlavorBitriseSSHStepID:                    steps.ConvertGitCloneFlavorBitriseSSH,
-		steps.OldHipchatStepID:                                     steps.ConvertHipchat,
-		steps.OldSlackMessageStepID:                                steps.ConvertSlackMessage,
-		steps.OldActivateSSHKeyFlavorBitriseStepID:                 steps.ConvertActivateSSHKeyFlavorBitrise,
-		steps.OldXcodeBuilderFlavorBitriseAnalyzeStepID:            steps.ConvertXcodeBuilderFlavorBitriseAnalyze,
-		steps.OlXcodeBuilderFlavorBitriseCreateArchiveStepID:       steps.ConvertXcodeBuilderFlavorBitriseCreateArchive,
-		steps.OldXcodeBuilderFlavorBitriseUnittestStepID:           steps.ConvertXcodeBuilderFlavorBitriseUnittest,
-		steps.OldCurlPingStepID:                                    steps.ConvertCurlPing,
-		steps.OldItunesConnectDeployWithDeliverFlavorBitriseStepID: steps.ConvertItunesConnectDeployWithDeliverFlavorBitrise,
+		steps.OldBashScriptRunnerStepID:                             steps.ConvertBashScriptRunner,
+		steps.OldBitriseIosDeployStepID:                             steps.ConvertBitriseIosDeploy,
+		steps.OldCocoapodsAndXcodeRepositoryValidatorFlavorBitrise:  steps.ConvertCocoapodsAndXcodeRepositoryValidatorFlavorBitrise,
+		steps.OldCocoapodsFlavorBitriseStepID:                       steps.ConvertCocoapodsFlavorBitrise,
+		steps.OldGenericScriptRunnerStepID:                          steps.ConvertGenericScriptRunner,
+		steps.OldGitCloneFlavorBitriseStepID:                        steps.ConvertGitCloneFlavorBitrise,
+		steps.OldGitCloneFlavorBitriseSSHStepID:                     steps.ConvertGitCloneFlavorBitriseSSH,
+		steps.OldHipchatStepID:                                      steps.ConvertHipchat,
+		steps.OldSlackMessageStepID:                                 steps.ConvertSlackMessage,
+		steps.OldActivateSSHKeyFlavorBitriseStepID:                  steps.ConvertActivateSSHKeyFlavorBitrise,
+		steps.OldXcodeBuilderFlavorBitriseAnalyzeStepID:             steps.ConvertXcodeBuilderFlavorBitriseAnalyze,
+		steps.OlXcodeBuilderFlavorBitriseCreateArchiveStepID:        steps.ConvertXcodeBuilderFlavorBitriseCreateArchive,
+		steps.OldXcodeBuilderFlavorBitriseUnittestStepID:            steps.ConvertXcodeBuilderFlavorBitriseUnittest,
+		steps.OldCurlPingStepID:                                     steps.ConvertCurlPing,
+		steps.OldItunesConnectDeployWithDeliverFlavorBitriseStepID:  steps.ConvertItunesConnectDeployWithDeliverFlavorBitrise,
+		steps.OldItunesConnectDeployWithShenzhenFlavorBitriseStepID: steps.ConvertItunesConnectDeployWithShenzhenFlavorBitrise,
 	}
 }
 
