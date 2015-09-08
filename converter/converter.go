@@ -44,6 +44,7 @@ func getStepConverterFunctionMap() map[string]stepConverter {
 		steps.OldParsePushNotificationStepID:                        steps.ConvertParsePushNotification,
 		steps.OldTwilioSmsTextMessageStepID:                         steps.ConvertTwilioSmsTextMessage,
 		steps.OldMailgunEmailStepID:                                 steps.ConvertMailgunEmail,
+		steps.OldRemoteBashScriptRunnerStepID:                       steps.ConvertRemoteBashScriptRunner,
 	}
 }
 
