@@ -30,6 +30,7 @@ func getStepConverterFunctionMap() map[string]stepConverter {
 		steps.OldXcodeBuilderFlavorBitriseAnalyzeStepID:            steps.ConvertXcodeBuilderFlavorBitriseAnalyze,
 		steps.OlXcodeBuilderFlavorBitriseCreateArchiveStepID:       steps.ConvertXcodeBuilderFlavorBitriseCreateArchive,
 		steps.OldXcodeBuilderFlavorBitriseUnittestStepID:           steps.ConvertXcodeBuilderFlavorBitriseUnittest,
+		steps.OldCurlPingStepID:                                    steps.ConvertCurlPing,
 	}
 }
 
