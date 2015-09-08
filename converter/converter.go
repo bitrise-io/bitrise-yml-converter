@@ -36,6 +36,7 @@ func getStepConverterFunctionMap() map[string]stepConverter {
 		steps.OldRandomQuoteStepID:                                  steps.ConvertRandomQuote,
 		steps.OldAmazonS3UploaderStepID:                             steps.ConvertAmazonS3Uploader,
 		steps.OldTestfairyDeployStepID:                              steps.ConvertTestfairyDeploy,
+		steps.OldFtpUploadStepID:                                    steps.ConvertFtpUpload,
 	}
 }
 
