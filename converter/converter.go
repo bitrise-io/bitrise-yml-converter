@@ -39,6 +39,7 @@ func getStepConverterFunctionMap() map[string]stepConverter {
 		steps.OldFtpUploadStepID:                                    steps.ConvertFtpUpload,
 		steps.OldOsxSecureDeletePathStepID:                          steps.ConvertOsxSecureDeletePath,
 		steps.OldAmazonS3DeployFlavorBitriseStepID:                  steps.ConvertAmazonS3DeployFlavorBitrise,
+		steps.OldCertificateAndProfileInstallerStepID:               steps.ConvertCertificateAndProfileInstaller,
 	}
 }
 
