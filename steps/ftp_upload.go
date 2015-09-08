@@ -41,7 +41,7 @@ inputs:
 
 // ConvertFtpUpload ...
 func ConvertFtpUpload(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
-	newStepID := NewAmazonS3UploaderStepID
+	newStepID := NewFtpUploadStepID
 	inputConversionMap := map[string]string{
 		"hostname":           "FTP_HOSTNAME",
 		"username":           "FTP_USERNAME",

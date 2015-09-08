@@ -39,7 +39,7 @@ inputs:
 
 // ConvertCertificateAndProfileInstaller ...
 func ConvertCertificateAndProfileInstaller(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
-	newStepID := NewActivateSSHKeyStepID
+	newStepID := NewCertificateAndProfileInstallerStepID
 	inputConversionMap := map[string]string{
 		"certificate_url":          "certificate_url",
 		"certificate_passphrase":   "certificate_passphrase",

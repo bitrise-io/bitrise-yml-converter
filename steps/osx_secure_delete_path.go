@@ -35,7 +35,7 @@ inputs:
 
 // ConvertOsxSecureDeletePath ...
 func ConvertOsxSecureDeletePath(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
-	newStepID := NewAmazonS3UploaderStepID
+	newStepID := NewOsxSecureDeletePathStepID
 	inputConversionMap := map[string]string{
 		"path":      "SECURE_DELETE_PATH",
 		"with_sudo": "SECURE_DELETE_WITHSUDO",

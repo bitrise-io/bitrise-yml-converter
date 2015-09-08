@@ -31,7 +31,7 @@ inputs: []
 
 // ConvertRandomQuote ...
 func ConvertRandomQuote(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
-	newStepID := NewItunesConnectDeployWithDeliverFlavorBitriseStepID
+	newStepID := NewRandomQuoteStepID
 	inputConversionMap := map[string]string{}
 
 	return utils.ConvertStepAndCreateStepListItem(convertedWorkflowStep, newStepID, inputConversionMap)

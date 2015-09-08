@@ -39,7 +39,7 @@ inputs:
 
 // ConvertItunesConnectDeployWithShenzhenFlavorBitrise ...
 func ConvertItunesConnectDeployWithShenzhenFlavorBitrise(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
-	newStepID := NewItunesConnectDeployWithDeliverFlavorBitriseStepID
+	newStepID := NewItunesConnectDeployWithShenzhenFlavorBitriseStepID
 	inputConversionMap := map[string]string{
 		"ipa_path":       "STEP_SHENZHEN_DEPLOY_IPA_PATH",
 		"itunescon_user": "STEP_SHENZHEN_DEPLOY_ITUNESCON_USER",

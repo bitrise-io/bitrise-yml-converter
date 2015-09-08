@@ -49,7 +49,7 @@ inputs:
 
 // ConvertAmazonS3DeployFlavorBitrise ...
 func ConvertAmazonS3DeployFlavorBitrise(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
-	newStepID := NewActivateSSHKeyStepID
+	newStepID := NewAmazonS3DeployFlavorBitriseStepID
 	inputConversionMap := map[string]string{
 		"ipa_path":          "BITRISE_IPA_PATH",
 		"dsym_path":         "BITRISE_DSYM_PATH",
