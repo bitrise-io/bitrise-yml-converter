@@ -45,6 +45,7 @@ func getStepConverterFunctionMap() map[string]stepConverter {
 		steps.OldTwilioSmsTextMessageStepID:                         steps.ConvertTwilioSmsTextMessage,
 		steps.OldMailgunEmailStepID:                                 steps.ConvertMailgunEmail,
 		steps.OldRemoteBashScriptRunnerStepID:                       steps.ConvertRemoteBashScriptRunner,
+		steps.OldRubyScriptWithGemfileStepID:                        steps.ConvertRubyScriptWithGemfile,
 	}
 }
 
