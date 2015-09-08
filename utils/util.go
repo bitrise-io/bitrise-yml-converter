@@ -9,6 +9,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	oldModels "github.com/bitrise-io/bitrise-yml-converter/old_models"
+	"github.com/bitrise-io/bitrise/bitrise"
 	bitriseModels "github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/cmdex"
@@ -33,38 +34,56 @@ func GetInputByKey(inputs []envmanModels.EnvironmentItemModel, key string) (envm
 }
 
 // GetStepFromNewSteplib ...
-func GetStepFromNewSteplib(stepID, stepLibGitURI string) (stepmanModels.StepModel, error) {
+func GetStepFromNewSteplib(stepID, stepLibGitURI string) (stepmanModels.StepModel, string, error) {
 	// Activate step - get step.yml
 	tempStepCloneDirPath, err := pathutil.NormalizedOSTempDirPath("step_clone")
 	if err != nil {
-		return stepmanModels.StepModel{}, err
+		return stepmanModels.StepModel{}, "", err
 	}
 	tempStepYMLDirPath, err := pathutil.NormalizedOSTempDirPath("step_yml")
 	if err != nil {
-		return stepmanModels.StepModel{}, err
+		return stepmanModels.StepModel{}, "", err
 	}
 	tempStepYMLFilePath := path.Join(tempStepYMLDirPath, "step.yml")
 
-	logLevel := log.GetLevel().String()
-	args := []string{"--debug", "--loglevel", logLevel, "activate", "--collection", stepLibGitURI, "--id", stepID, "--path", tempStepCloneDirPath, "--copyyml", tempStepYMLFilePath, "--update"}
-	if err := cmdex.RunCommand("stepman", args...); err != nil {
-		return stepmanModels.StepModel{}, err
+	// Stepman
+	if err := bitrise.StepmanSetup(stepLibGitURI); err != nil {
+		return stepmanModels.StepModel{}, "", err
+	}
+
+	stepInfo, err := bitrise.StepmanStepInfo(stepLibGitURI, stepID, "")
+	if err != nil {
+		// May StepLib should be updated
+		log.Info("Step info not found in StepLib (%s) -- Updating ...")
+		if err := bitrise.StepmanUpdate(stepLibGitURI); err != nil {
+			return stepmanModels.StepModel{}, "", err
+		}
+		stepInfo, err = bitrise.StepmanStepInfo(stepLibGitURI, stepID, "")
+		if err != nil {
+			return stepmanModels.StepModel{}, "", err
+		}
+	}
+
+	stepVersion := stepInfo.StepVersion
+
+	if err := bitrise.StepmanActivate(stepLibGitURI, stepID, "", tempStepCloneDirPath, tempStepYMLFilePath); err != nil {
+		return stepmanModels.StepModel{}, "", err
 	}
 
 	specStep, err := ReadSpecStep(tempStepYMLFilePath)
 	if err != nil {
-		return stepmanModels.StepModel{}, err
+		return stepmanModels.StepModel{}, "", err
 	}
 
 	// Cleanup
 	if err := cmdex.RemoveDir(tempStepCloneDirPath); err != nil {
-		return stepmanModels.StepModel{}, errors.New(fmt.Sprint("Failed to remove step clone dir: ", err))
+		return stepmanModels.StepModel{}, "", errors.New(fmt.Sprint("Failed to remove step clone dir: ", err))
 	}
 	if err := cmdex.RemoveDir(tempStepYMLDirPath); err != nil {
-		return stepmanModels.StepModel{}, errors.New(fmt.Sprint("Failed to remove step clone dir: ", err))
+		return stepmanModels.StepModel{}, "", errors.New(fmt.Sprint("Failed to remove step clone dir: ", err))
 	}
 
-	return specStep, nil
+	return specStep, stepVersion, nil
 }
 
 // GetStepFromGit ...

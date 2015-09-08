@@ -60,12 +60,12 @@ func ConvertBitriseIosDeploy(convertedWorkflowStep stepmanModels.StepModel) ([]b
 		"is_enable_public_page": "STEP_BITRISE_IOS_DEPLOY_ENABLE_PUBLIC_PAGE",
 	}
 
-	newStep, err := utils.ConvertStep(convertedWorkflowStep, newStepID, inputConversionMap)
+	newStep, version, err := utils.ConvertStep(convertedWorkflowStep, newStepID, inputConversionMap)
 	if err != nil {
 		return []bitriseModels.StepListItemModel{}, err
 	}
 
-	stepIDDataString := utils.BitriseVerifiedStepLibGitURI + "::" + newStepID
+	stepIDDataString := newStepID + "@" + version
 	stepListItems = append(stepListItems, bitriseModels.StepListItemModel{stepIDDataString: newStep})
 
 	return stepListItems, nil

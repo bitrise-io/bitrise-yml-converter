@@ -43,30 +43,18 @@ func getNewStepIDAndConverter(oldStepID string) (stepConverter, bool) {
 	return converter, true
 }
 
-// GetDefaultSteplibSource ...
-func GetDefaultSteplibSource(workflow oldmodels.WorkflowModel) string {
-	defaultSource := ""
-	for _, step := range workflow.Steps {
-		if defaultSource == "" {
-			defaultSource = step.SteplibSource
-		} else if defaultSource != step.SteplibSource {
-			return ""
-		}
-	}
-	return defaultSource
-}
-
 // ConvertOldWorkflow ...
-func ConvertOldWorkflow(oldWorkflow oldmodels.WorkflowModel) (bitriseModels.WorkflowModel, error) {
+func ConvertOldWorkflow(oldWorkflow oldmodels.WorkflowModel) (bitriseModels.WorkflowModel, string, error) {
 	// Step conversion
 	containsCertificateStep := false
+	defaultStepLib := ""
 
 	stepList := []bitriseModels.StepListItemModel{}
 	for _, oldStep := range oldWorkflow.Steps {
 		oldStepID := oldStep.ID
 		newStep, err := oldStep.Convert()
 		if err != nil {
-			return bitriseModels.WorkflowModel{}, err
+			return bitriseModels.WorkflowModel{}, "", err
 		}
 
 		converterFunc, found := getNewStepIDAndConverter(oldStepID)
@@ -76,13 +64,13 @@ func ConvertOldWorkflow(oldWorkflow oldmodels.WorkflowModel) (bitriseModels.Work
 
 			convertedStepListItems, err := converterFunc(newStep)
 			if err != nil {
-				return bitriseModels.WorkflowModel{}, err
+				return bitriseModels.WorkflowModel{}, "", err
 			}
 
 			for _, stepListItem := range convertedStepListItems {
 				stepID, _, err := bitriseModels.GetStepIDStepDataPair(stepListItem)
 				if err != nil {
-					return bitriseModels.WorkflowModel{}, err
+					return bitriseModels.WorkflowModel{}, "", err
 				}
 
 				if strings.Contains(stepID, utils.CertificateStepID) {
@@ -93,6 +81,7 @@ func ConvertOldWorkflow(oldWorkflow oldmodels.WorkflowModel) (bitriseModels.Work
 					}
 				}
 
+				defaultStepLib = utils.BitriseVerifiedStepLibGitURI
 				stepList = append(stepList, stepListItem)
 			}
 		} else {
@@ -113,47 +102,16 @@ func ConvertOldWorkflow(oldWorkflow oldmodels.WorkflowModel) (bitriseModels.Work
 	// Workflow environments
 	environments, err := oldWorkflow.GetEnvironments()
 	if err != nil {
-		return bitriseModels.WorkflowModel{}, err
+		return bitriseModels.WorkflowModel{}, "", err
 	}
 
 	return bitriseModels.WorkflowModel{
 		Environments: environments,
 		Steps:        stepList,
-	}, nil
+	}, defaultStepLib, nil
 }
 
-// ConvertOldWorkfowModels ...
-func ConvertOldWorkfowModels(oldWorkflowMap map[string]oldmodels.WorkflowModel) (bitriseModels.BitriseDataModel, error) {
-	bitriseData := bitriseModels.BitriseDataModel{
-		FormatVersion: "1.0.0",
-		Workflows:     map[string]bitriseModels.WorkflowModel{},
-	}
-
-	hasDefaultSteplLibSource := true
-	defaultSource := ""
-	workflowIDs := []string{}
-
-	for workflowID, oldWorkflow := range oldWorkflowMap {
-		workflowIDs = append(workflowIDs, workflowID)
-
-		newWorkflow, err := ConvertOldWorkflow(oldWorkflow)
-		if err != nil {
-			return bitriseModels.BitriseDataModel{}, err
-		}
-
-		bitriseData.Workflows[workflowID] = newWorkflow
-
-		if defaultSource == "" {
-			defaultSource = GetDefaultSteplibSource(oldWorkflow)
-		} else if defaultSource != GetDefaultSteplibSource(oldWorkflow) {
-			hasDefaultSteplLibSource = false
-		}
-	}
-
-	if hasDefaultSteplLibSource {
-		bitriseData.DefaultStepLibSource = defaultSource
-	}
-
+func generateTriggerMap(workflowIDs []string) []bitriseModels.TriggerMapItemModel {
 	triggerMap := []bitriseModels.TriggerMapItemModel{}
 	for _, workflowID := range workflowIDs {
 		triggerItem := bitriseModels.TriggerMapItemModel{
@@ -163,7 +121,42 @@ func ConvertOldWorkfowModels(oldWorkflowMap map[string]oldmodels.WorkflowModel) 
 		}
 		triggerMap = append(triggerMap, triggerItem)
 	}
-	bitriseData.TriggerMap = triggerMap
+	triggerItem := bitriseModels.TriggerMapItemModel{
+		Pattern:              "*",
+		IsPullRequestAllowed: true,
+		WorkflowID:           "primary",
+	}
+	triggerMap = append(triggerMap, triggerItem)
+	return triggerMap
+}
+
+// ConvertOldWorkfowModels ...
+func ConvertOldWorkfowModels(oldWorkflowMap map[string]oldmodels.WorkflowModel) (bitriseModels.BitriseDataModel, error) {
+	bitriseData := bitriseModels.BitriseDataModel{
+		FormatVersion: "1.0.0",
+		Workflows:     map[string]bitriseModels.WorkflowModel{},
+	}
+
+	defaultSource := ""
+	workflowIDs := []string{}
+
+	for workflowID, oldWorkflow := range oldWorkflowMap {
+		workflowIDs = append(workflowIDs, workflowID)
+
+		newWorkflow, defaultSteplib, err := ConvertOldWorkflow(oldWorkflow)
+		if err != nil {
+			return bitriseModels.BitriseDataModel{}, err
+		}
+
+		if defaultSteplib != "" {
+			defaultSource = defaultSteplib
+		}
+
+		bitriseData.Workflows[workflowID] = newWorkflow
+	}
+
+	bitriseData.DefaultStepLibSource = defaultSource
+	bitriseData.TriggerMap = generateTriggerMap(workflowIDs)
 
 	return bitriseData, nil
 }

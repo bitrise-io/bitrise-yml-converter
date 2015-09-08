@@ -125,11 +125,11 @@ func ConvertXcodeBuilderFlavorBitriseUnittest(convertedWorkflowStep stepmanModel
 		return mergedStepInputs, nil
 	}
 
-	convertStep := func(convertedWorkflowStep stepmanModels.StepModel, newStepID string, inputConversionMap map[string]string) (stepmanModels.StepModel, error) {
+	convertStep := func(convertedWorkflowStep stepmanModels.StepModel, newStepID string, inputConversionMap map[string]string) (stepmanModels.StepModel, string, error) {
 		// The new StepLib version of step
-		specStep, err := utils.GetStepFromNewSteplib(newStepID, utils.BitriseVerifiedStepLibGitURI)
+		specStep, version, err := utils.GetStepFromNewSteplib(newStepID, utils.BitriseVerifiedStepLibGitURI)
 		if err != nil {
-			return stepmanModels.StepModel{}, err
+			return stepmanModels.StepModel{}, "", err
 		}
 		if convertedWorkflowStep.Title != nil && *convertedWorkflowStep.Title != "" {
 			specStep.Title = pointers.NewStringPtr(*convertedWorkflowStep.Title)
@@ -141,11 +141,11 @@ func ConvertXcodeBuilderFlavorBitriseUnittest(convertedWorkflowStep stepmanModel
 		// Merge new StepLib version inputs, with old workflow defined
 		mergedInputs, err := convertStepsInputs(specStep.Inputs, convertedWorkflowStep.Inputs, inputConversionMap)
 		if err != nil {
-			return stepmanModels.StepModel{}, err
+			return stepmanModels.StepModel{}, "", err
 		}
 		specStep.Inputs = mergedInputs
 
-		return specStep, nil
+		return specStep, version, nil
 	}
 
 	stepListItems, err := utils.CertificateStep()
@@ -161,12 +161,12 @@ func ConvertXcodeBuilderFlavorBitriseUnittest(convertedWorkflowStep stepmanModel
 		"simulator_device": "XCODE_BUILDER_UNITTEST_PLATFORM_NAME",
 	}
 
-	newStep, err := convertStep(convertedWorkflowStep, newStepID, inputConversionMap)
+	newStep, version, err := convertStep(convertedWorkflowStep, newStepID, inputConversionMap)
 	if err != nil {
 		return []bitriseModels.StepListItemModel{}, err
 	}
 
-	stepIDDataString := utils.BitriseVerifiedStepLibGitURI + "::" + newStepID
+	stepIDDataString := newStepID + "@" + version
 	stepListItems = append(stepListItems, bitriseModels.StepListItemModel{stepIDDataString: newStep})
 
 	return stepListItems, nil

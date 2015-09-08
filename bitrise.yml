@@ -34,13 +34,13 @@ workflows:
             #!/bin/bash
             set -e
             bitrise normalize -p ${NEW_WORKFLOW_PTH}
-    - script:
-        title: Run converted workflow
-        inputs:
-        - content: |-
-            #!/bin/bash
-            set -e
-            bitrise run ${TARGET_WORKFLOW_NAME} -p ${NEW_WORKFLOW_PTH}
+    # - script:
+    #     title: Run converted workflow
+    #     inputs:
+    #     - content: |-
+    #         #!/bin/bash
+    #         set -e
+    #         bitrise run ${TARGET_WORKFLOW_NAME} -p ${NEW_WORKFLOW_PTH}
 
 
   godeps-update:
