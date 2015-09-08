@@ -43,6 +43,7 @@ func getStepConverterFunctionMap() map[string]stepConverter {
 		steps.OldSelectXcodeVersionStepID:                           steps.ConvertSelectXcodeVersion,
 		steps.OldParsePushNotificationStepID:                        steps.ConvertParsePushNotification,
 		steps.OldTwilioSmsTextMessageStepID:                         steps.ConvertTwilioSmsTextMessage,
+		steps.OldMailgunEmailStepID:                                 steps.ConvertMailgunEmail,
 	}
 }
 
