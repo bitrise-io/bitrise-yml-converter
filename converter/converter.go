@@ -41,6 +41,7 @@ func getStepConverterFunctionMap() map[string]stepConverter {
 		steps.OldAmazonS3DeployFlavorBitriseStepID:                  steps.ConvertAmazonS3DeployFlavorBitrise,
 		steps.OldCertificateAndProfileInstallerStepID:               steps.ConvertCertificateAndProfileInstaller,
 		steps.OldSelectXcodeVersionStepID:                           steps.ConvertSelectXcodeVersion,
+		steps.OldParsePushNotificationStepID:                        steps.ConvertParsePushNotification,
 	}
 }
 
