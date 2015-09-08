@@ -47,6 +47,7 @@ func getStepConverterFunctionMap() map[string]stepConverter {
 		steps.OldRemoteBashScriptRunnerStepID:                       steps.ConvertRemoteBashScriptRunner,
 		steps.OldRubyScriptWithGemfileStepID:                        steps.ConvertRubyScriptWithGemfile,
 		steps.OldFabricCrashlyticsBetaDeployStepID:                  steps.ConvertFabricCrashlyticsBetaDeploy,
+		steps.OldHockeyappDeployFlavorBitriseStepID:                 steps.ConvertHockeyappDeployFlavorBitrise,
 	}
 }
 
