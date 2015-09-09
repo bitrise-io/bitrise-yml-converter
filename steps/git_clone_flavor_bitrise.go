@@ -9,8 +9,8 @@ import (
 const (
 	// OldGitCloneFlavorBitriseStepID ...
 	OldGitCloneFlavorBitriseStepID = "git-clone_flavor_bitrise"
-	// NewGitCloneExtendedStepID ...
-	NewGitCloneExtendedStepID = "git-clone-extended"
+	// NewGitCloneFlavorBitriseStepID ...
+	NewGitCloneFlavorBitriseStepID = "git-clone"
 )
 
 //----------------------
@@ -30,7 +30,7 @@ inputs:
   - AUTH_USER
   - AUTH_PASSWORD
   - AUTH_SSH_PRIVATE_KEY
-	- BITRISE_STEP_FORMATTED_OUTPUT_FILE_PATH
+	- GIT_CLONE_FORMATTED_OUTPUT_FILE_PATH
   - GIT_CLONE_IS_EXPORT_OUTPUTS
 */
 
@@ -44,15 +44,12 @@ inputs:
 - branch
 - pull_request_id
 - clone_into_dir
-- auth_user
-- auth_password
 - auth_ssh_private_key
-- is_expose_outputs
 */
 
 // ConvertGitCloneFlavorBitrise ...
 func ConvertGitCloneFlavorBitrise(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
-	newStepID := NewGitCloneExtendedStepID
+	newStepID := NewGitCloneFlavorBitriseStepID
 	inputConversionMap := map[string]string{
 		"repository_url":       "GIT_REPOSITORY_URL",
 		"commit":               "BITRISE_GIT_COMMIT",
@@ -60,10 +57,7 @@ func ConvertGitCloneFlavorBitrise(convertedWorkflowStep stepmanModels.StepModel)
 		"branch":               "BITRISE_GIT_BRANCH",
 		"pull_request_id":      "BITRISE_PULL_REQUEST",
 		"clone_into_dir":       "BITRISE_SOURCE_DIR",
-		"auth_user":            "AUTH_USER",
-		"auth_password":        "AUTH_PASSWORD",
 		"auth_ssh_private_key": "AUTH_SSH_PRIVATE_KEY",
-		"is_expose_outputs":    "GIT_CLONE_IS_EXPORT_OUTPUTS",
 	}
 
 	return utils.ConvertStepAndCreateStepListItem(convertedWorkflowStep, newStepID, inputConversionMap)
