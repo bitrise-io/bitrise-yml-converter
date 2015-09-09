@@ -11,9 +11,7 @@ const (
 	// BitriseVerifiedStepLibGitURI ...
 	BitriseVerifiedStepLibGitURI = "https://github.com/bitrise-io/bitrise-steplib.git"
 	// CertificateStepID ...
-	CertificateStepID = "steps-certificate-and-profile-installer"
-	// CertificateStepGitURI ...
-	CertificateStepGitURI = "https://github.com/bitrise-io/steps-certificate-and-profile-installer.git"
+	CertificateStepID = "certificate-and-profile-installer"
 )
 
 //----------------------
@@ -125,27 +123,27 @@ func ConvertStepAndCreateStepListItem(diffStep stepmanModels.StepModel, newStepI
 
 	stepIDDataString := newStepID + "@" + version
 
-	stepListItem := bitriseModels.StepListItemModel{
-		stepIDDataString: newStep,
-	}
-
-	return []bitriseModels.StepListItemModel{stepListItem}, nil
+	return []bitriseModels.StepListItemModel{
+		bitriseModels.StepListItemModel{
+			stepIDDataString: newStep,
+		},
+	}, nil
 }
 
 // CertificateStep ...
 //
 // Cerificate step separated in new StepLib
 // so need to insert befor new Xcode steps
-// Step source: https://github.com/bitrise-io/steps-certificate-and-profile-installer.git
 func CertificateStep() ([]bitriseModels.StepListItemModel, error) {
-	certificateStep, err := GetStepFromGit(CertificateStepGitURI)
+	certificateStep, version, err := GetStepFromNewSteplib(CertificateStepID, BitriseVerifiedStepLibGitURI)
 	if err != nil {
 		return []bitriseModels.StepListItemModel{}, err
 	}
-	certificateStep.RunIf = pointers.NewStringPtr(".IsCI")
-	certificateStep.Title = pointers.NewStringPtr(CertificateStepID)
 
-	stepIDDataString := "git::" + CertificateStepGitURI + "@master"
+	certificateStep.RunIf = pointers.NewStringPtr(".IsCI")
+
+	stepIDDataString := CertificateStepID + "@" + version
+
 	return []bitriseModels.StepListItemModel{
 		bitriseModels.StepListItemModel{
 			stepIDDataString: certificateStep,
