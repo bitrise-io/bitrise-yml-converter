@@ -119,7 +119,7 @@ is_always_run: true
 		t.Fatal("Failed to yaml.Unmarshal, err:", err)
 	}
 
-	convertedStep, err := ConvertStep(diffStep, "script", map[string]string{})
+	convertedStep, _, err := ConvertStep(diffStep, "script", map[string]string{})
 	if err != nil {
 		t.Fatal("Failed to convert step, err:", err)
 	}

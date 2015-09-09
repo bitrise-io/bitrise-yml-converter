@@ -58,12 +58,12 @@ func ConvertXcodeBuilderFlavorBitriseCreateArchive(convertedWorkflowStep stepman
 		"output_dir":   "XCODE_BUILDER_DEPLOY_DIR",
 	}
 
-	newStep, err := utils.ConvertStep(convertedWorkflowStep, newStepID, inputConversionMap)
+	newStep, version, err := utils.ConvertStep(convertedWorkflowStep, newStepID, inputConversionMap)
 	if err != nil {
 		return []bitriseModels.StepListItemModel{}, err
 	}
 
-	stepIDDataString := utils.BitriseVerifiedStepLibGitURI + "::" + newStepID
+	stepIDDataString := newStepID + "@" + version
 	stepListItems = append(stepListItems, bitriseModels.StepListItemModel{stepIDDataString: newStep})
 
 	return stepListItems, nil

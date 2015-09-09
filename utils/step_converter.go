@@ -94,10 +94,10 @@ func convertStepsInputs(originalInputs, diffInputs []envmanModels.EnvironmentIte
 // newStepID: the id of the new step in new StepLib
 // diffStep: readed from workflow to convert
 //
-func ConvertStep(diffStep stepmanModels.StepModel, newStepID string, inputConversionMap map[string]string) (stepmanModels.StepModel, error) {
-	originalStep, err := GetStepFromNewSteplib(newStepID, BitriseVerifiedStepLibGitURI)
+func ConvertStep(diffStep stepmanModels.StepModel, newStepID string, inputConversionMap map[string]string) (stepmanModels.StepModel, string, error) {
+	originalStep, version, err := GetStepFromNewSteplib(newStepID, BitriseVerifiedStepLibGitURI)
 	if err != nil {
-		return stepmanModels.StepModel{}, err
+		return stepmanModels.StepModel{}, "", err
 	}
 	if diffStep.Title != nil {
 		originalStep.Title = pointers.NewStringPtr(*diffStep.Title)
@@ -109,21 +109,21 @@ func ConvertStep(diffStep stepmanModels.StepModel, newStepID string, inputConver
 	// Merge new StepLib version inputs, with old workflow defined
 	mergedInputs, err := convertStepsInputs(originalStep.Inputs, diffStep.Inputs, inputConversionMap)
 	if err != nil {
-		return stepmanModels.StepModel{}, err
+		return stepmanModels.StepModel{}, "", err
 	}
 	originalStep.Inputs = mergedInputs
 
-	return originalStep, nil
+	return originalStep, version, nil
 }
 
 // ConvertStepAndCreateStepListItem ...
 func ConvertStepAndCreateStepListItem(diffStep stepmanModels.StepModel, newStepID string, inputConversionMap map[string]string) ([]bitriseModels.StepListItemModel, error) {
-	newStep, err := ConvertStep(diffStep, newStepID, inputConversionMap)
+	newStep, version, err := ConvertStep(diffStep, newStepID, inputConversionMap)
 	if err != nil {
 		return []bitriseModels.StepListItemModel{}, err
 	}
 
-	stepIDDataString := BitriseVerifiedStepLibGitURI + "::" + newStepID
+	stepIDDataString := newStepID + "@" + version
 
 	stepListItem := bitriseModels.StepListItemModel{
 		stepIDDataString: newStep,
