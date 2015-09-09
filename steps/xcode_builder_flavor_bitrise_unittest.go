@@ -50,79 +50,155 @@ inputs:
 - is_clean_build
 */
 
+/*
+func convertStepsInputs(originalInputs, diffInputs []envmanModels.EnvironmentItemModel, conversionMap map[string]string) ([]envmanModels.EnvironmentItemModel, error) {
+	convertedInputs := []envmanModels.EnvironmentItemModel{}
+
+	for _, originalInput := range originalInputs {
+		originalInputKey, originalInputValue, err := originalInput.GetKeyValuePair()
+		if err != nil {
+			return []envmanModels.EnvironmentItemModel{}, err
+		}
+
+		originalInputOptions, err := originalInput.GetOptions()
+		if err != nil {
+			return []envmanModels.EnvironmentItemModel{}, err
+		}
+
+		conversionInputKey, found := conversionMap[originalInputKey]
+		if found == false {
+			convertedInputs = append(convertedInputs, originalInput)
+			continue
+		}
+
+		diffInput, found, err := GetInputByKey(diffInputs, conversionInputKey)
+		if err != nil {
+			return []envmanModels.EnvironmentItemModel{}, err
+		}
+		if !found {
+			convertedInputs = append(convertedInputs, originalInput)
+			continue
+		}
+
+		_, diffInputValue, err := diffInput.GetKeyValuePair()
+		if err != nil {
+			return []envmanModels.EnvironmentItemModel{}, err
+		}
+		if diffInputValue == "" {
+			diffInputValue = originalInputValue
+		}
+
+		diffInputOptions, err := diffInput.GetOptions()
+		if err != nil {
+			return []envmanModels.EnvironmentItemModel{}, err
+		}
+
+		if diffInputOptions.IsExpand != nil {
+			originalInputOptions.IsExpand = pointers.NewBoolPtr(*diffInputOptions.IsExpand)
+		}
+
+		convertedInput := envmanModels.EnvironmentItemModel{
+			originalInputKey:        diffInputValue,
+			envmanModels.OptionsKey: originalInputOptions,
+		}
+
+		convertedInputs = append(convertedInputs, convertedInput)
+	}
+
+	return convertedInputs, nil
+}
+*/
+
 // ConvertXcodeBuilderFlavorBitriseUnittest ...
 func ConvertXcodeBuilderFlavorBitriseUnittest(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
 	simulatorOsVersion := ""
+	simulatorDevice := ""
 
 	// Converter function overwrites
 	convertStepsInputs := func(originalInputs, diffInputs []envmanModels.EnvironmentItemModel, conversionMap map[string]string) ([]envmanModels.EnvironmentItemModel, error) {
-		mergedStepInputs := []envmanModels.EnvironmentItemModel{}
-		for _, specInput := range originalInputs {
-			specKey, _, err := specInput.GetKeyValuePair()
+		convertedInputs := []envmanModels.EnvironmentItemModel{}
+		for _, originalInput := range originalInputs {
+			originalInputKey, originalInputValue, err := originalInput.GetKeyValuePair()
 			if err != nil {
 				return []envmanModels.EnvironmentItemModel{}, err
 			}
 
-			workflowInputKey, found := conversionMap[specKey]
+			originalInputOptions, err := originalInput.GetOptions()
+			if err != nil {
+				return []envmanModels.EnvironmentItemModel{}, err
+			}
+
+			conversionInputKey, found := conversionMap[originalInputKey]
 			if found == false {
-				mergedStepInputs = append(mergedStepInputs, specInput)
+				convertedInputs = append(convertedInputs, originalInput)
 				continue
 			}
 
-			workflowInput, found, err := utils.GetInputByKey(diffInputs, workflowInputKey)
+			diffInput, found, err := utils.GetInputByKey(diffInputs, conversionInputKey)
+			if err != nil {
+				return []envmanModels.EnvironmentItemModel{}, err
+			}
+			if !found {
+				convertedInputs = append(convertedInputs, originalInput)
+				continue
+			}
+
+			_, diffInputValue, err := diffInput.GetKeyValuePair()
+			if err != nil {
+				return []envmanModels.EnvironmentItemModel{}, err
+			}
+			if diffInputValue == "" {
+				diffInputValue = originalInputValue
+			}
+
+			diffInputOptions, err := diffInput.GetOptions()
 			if err != nil {
 				return []envmanModels.EnvironmentItemModel{}, err
 			}
 
-			_, workflowValue, err := workflowInput.GetKeyValuePair()
-			if err != nil {
-				return []envmanModels.EnvironmentItemModel{}, err
-			}
-			if workflowValue == "" {
-				continue
+			if diffInputOptions.IsExpand != nil {
+				originalInputOptions.IsExpand = pointers.NewBoolPtr(*diffInputOptions.IsExpand)
 			}
 
 			// Get ios version from old comma separated form
-			if specKey == "simulator_device" {
-				if workflowValue != "" {
-					versionSplit := strings.Split(workflowValue, ",")
-					simulatorOsVersion = versionSplit[len(versionSplit)-1]
+			if originalInputKey == "simulator_device" {
+				simulatorDevice = diffInputValue
+				if diffInputValue != "" {
+					versionSplit := strings.Split(diffInputValue, ",")
+					if len(versionSplit) == 2 {
+						simulatorDevice = versionSplit[0]
+						simulatorOsVersion = versionSplit[1]
+						if strings.HasPrefix(simulatorOsVersion, "OS=") {
+							simulatorOsVersion = strings.Replace(simulatorOsVersion, "OS=", "", -1)
+						}
+					}
 				}
 			}
 
-			workflowOptions, err := workflowInput.GetOptions()
-			if err != nil {
-				return []envmanModels.EnvironmentItemModel{}, err
-			}
-			workflowOptions.Title = nil
-			workflowOptions.Description = nil
-			workflowOptions.Summary = nil
-			workflowOptions.ValueOptions = []string{}
-			workflowOptions.IsRequired = nil
-			workflowOptions.IsDontChangeValue = nil
-			// workflowOptions.IsExpand should be keep
-
-			mergedInput := envmanModels.EnvironmentItemModel{
-				specKey:                 workflowValue,
-				envmanModels.OptionsKey: workflowOptions,
+			convertedInput := envmanModels.EnvironmentItemModel{
+				originalInputKey:        diffInputValue,
+				envmanModels.OptionsKey: originalInputOptions,
 			}
 
-			mergedStepInputs = append(mergedStepInputs, mergedInput)
+			convertedInputs = append(convertedInputs, convertedInput)
 		}
 
-		for idx, input := range mergedStepInputs {
+		for idx, input := range convertedInputs {
 			specKey, _, err := input.GetKeyValuePair()
 			if err != nil {
 				return []envmanModels.EnvironmentItemModel{}, err
 			}
+			if specKey == "simulator_device" {
+				input[specKey] = simulatorDevice
+				convertedInputs[idx] = input
+			}
 			if specKey == "simulator_os_version" {
 				input[specKey] = simulatorOsVersion
-				mergedStepInputs[idx] = input
-				break
+				convertedInputs[idx] = input
 			}
 		}
 
-		return mergedStepInputs, nil
+		return convertedInputs, nil
 	}
 
 	convertStep := func(convertedWorkflowStep stepmanModels.StepModel, newStepID string, inputConversionMap map[string]string) (stepmanModels.StepModel, string, error) {
@@ -156,6 +232,7 @@ func ConvertXcodeBuilderFlavorBitriseUnittest(convertedWorkflowStep stepmanModel
 	// Convert Xcode test step
 	newStepID := NewXcodeTest
 	inputConversionMap := map[string]string{
+		"workdir":          "XCODE_BUILDER_PROJECT_ROOT_DIR_PATH",
 		"project_path":     "XCODE_BUILDER_PROJECT_PATH",
 		"scheme":           "XCODE_BUILDER_SCHEME",
 		"simulator_device": "XCODE_BUILDER_UNITTEST_PLATFORM_NAME",
