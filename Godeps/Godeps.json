@@ -8,35 +8,56 @@
 			"Rev": "07d998d174c4e2dc90e2f1989a20724220bca1ff"
 		},
 		{
+			"ImportPath": "github.com/bitrise-io/bitrise/bitrise",
+			"Comment": "0.9.11-92-gf449dfa",
+			"Rev": "f449dfa452a70d296d019df6f916772d8765b619"
+		},
+		{
 			"ImportPath": "github.com/bitrise-io/bitrise/models",
-			"Comment": "0.9.11-17-g631bf0f",
-			"Rev": "631bf0f8923d57821465a650ecae9b66c193f09a"
+			"Comment": "0.9.11-92-gf449dfa",
+			"Rev": "f449dfa452a70d296d019df6f916772d8765b619"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/envman/models",
-			"Comment": "0.9.7-7-ga629239",
-			"Rev": "a629239611531781e3c5b22cc42c3dca5568ab2b"
+			"Comment": "0.9.8-4-g9694531",
+			"Rev": "9694531df277cc3c76d47e2d3fdc7ad54bac4fc6"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/go-utils/cmdex",
-			"Rev": "3aa3ad1b857b5e4478d6f974a6201317a0eb0457"
+			"Rev": "94e015497d551764f779b62414ffbd7d2f20e699"
+		},
+		{
+			"ImportPath": "github.com/bitrise-io/go-utils/colorstring",
+			"Rev": "94e015497d551764f779b62414ffbd7d2f20e699"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/go-utils/fileutil",
-			"Rev": "3aa3ad1b857b5e4478d6f974a6201317a0eb0457"
+			"Rev": "94e015497d551764f779b62414ffbd7d2f20e699"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/go-utils/pathutil",
-			"Rev": "3aa3ad1b857b5e4478d6f974a6201317a0eb0457"
+			"Rev": "94e015497d551764f779b62414ffbd7d2f20e699"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/go-utils/pointers",
-			"Rev": "3aa3ad1b857b5e4478d6f974a6201317a0eb0457"
+			"Rev": "94e015497d551764f779b62414ffbd7d2f20e699"
+		},
+		{
+			"ImportPath": "github.com/bitrise-io/go-utils/stringutil",
+			"Rev": "94e015497d551764f779b62414ffbd7d2f20e699"
+		},
+		{
+			"ImportPath": "github.com/bitrise-io/go-utils/versions",
+			"Rev": "94e015497d551764f779b62414ffbd7d2f20e699"
+		},
+		{
+			"ImportPath": "github.com/bitrise-io/goinp/goinp",
+			"Rev": "f4fc4388757b694d3733279ab4dcefcfc875d189"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/stepman/models",
-			"Comment": "0.9.12-19-ge722bdb",
-			"Rev": "e722bdb0e78eba04c2773e070a30b6e2fbbe1fe7"
+			"Comment": "0.9.13",
+			"Rev": "4d134ad991ad5ebc6be5668a4b0dac9fef9d0931"
 		},
 		{
 			"ImportPath": "github.com/codegangsta/cli",
