@@ -21,7 +21,7 @@ const (
 old version source: https://github.com/bitrise-io/steps-select-xcode-version.git
 
 inputs:
-- SELECT_XCODE_VERSION_CHANNEL_IDó
+- SELECT_XCODE_VERSION_CHANNEL_ID
 */
 
 /*
@@ -35,9 +35,7 @@ inputs:
 func ConvertSelectXcodeVersion(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
 	newStepID := NewSelectXcodeVersionStepID
 	inputConversionMap := map[string]string{
-		"ssh_rsa_private_key":        "SSH_RSA_PRIVATE_KEY",
-		"ssh_key_save_path":          "SSH_KEY_SAVE_PATH",
-		"is_remove_other_identities": "IS_REMOVE_OTHER_IDENTITIES",
+		"version_channel_id": "SELECT_XCODE_VERSION_CHANNEL_ID",
 	}
 
 	return utils.ConvertStepAndCreateStepListItem(convertedWorkflowStep, newStepID, inputConversionMap)
