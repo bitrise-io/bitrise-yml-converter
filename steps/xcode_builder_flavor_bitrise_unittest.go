@@ -50,68 +50,9 @@ inputs:
 - is_clean_build
 */
 
-/*
-func convertStepsInputs(originalInputs, diffInputs []envmanModels.EnvironmentItemModel, conversionMap map[string]string) ([]envmanModels.EnvironmentItemModel, error) {
-	convertedInputs := []envmanModels.EnvironmentItemModel{}
-
-	for _, originalInput := range originalInputs {
-		originalInputKey, originalInputValue, err := originalInput.GetKeyValuePair()
-		if err != nil {
-			return []envmanModels.EnvironmentItemModel{}, err
-		}
-
-		originalInputOptions, err := originalInput.GetOptions()
-		if err != nil {
-			return []envmanModels.EnvironmentItemModel{}, err
-		}
-
-		conversionInputKey, found := conversionMap[originalInputKey]
-		if found == false {
-			convertedInputs = append(convertedInputs, originalInput)
-			continue
-		}
-
-		diffInput, found, err := GetInputByKey(diffInputs, conversionInputKey)
-		if err != nil {
-			return []envmanModels.EnvironmentItemModel{}, err
-		}
-		if !found {
-			convertedInputs = append(convertedInputs, originalInput)
-			continue
-		}
-
-		_, diffInputValue, err := diffInput.GetKeyValuePair()
-		if err != nil {
-			return []envmanModels.EnvironmentItemModel{}, err
-		}
-		if diffInputValue == "" {
-			diffInputValue = originalInputValue
-		}
-
-		diffInputOptions, err := diffInput.GetOptions()
-		if err != nil {
-			return []envmanModels.EnvironmentItemModel{}, err
-		}
-
-		if diffInputOptions.IsExpand != nil {
-			originalInputOptions.IsExpand = pointers.NewBoolPtr(*diffInputOptions.IsExpand)
-		}
-
-		convertedInput := envmanModels.EnvironmentItemModel{
-			originalInputKey:        diffInputValue,
-			envmanModels.OptionsKey: originalInputOptions,
-		}
-
-		convertedInputs = append(convertedInputs, convertedInput)
-	}
-
-	return convertedInputs, nil
-}
-*/
-
 // ConvertXcodeBuilderFlavorBitriseUnittest ...
 func ConvertXcodeBuilderFlavorBitriseUnittest(convertedWorkflowStep stepmanModels.StepModel) ([]bitriseModels.StepListItemModel, error) {
-	simulatorOsVersion := ""
+	simulatorOsVersion := "latest"
 	simulatorDevice := ""
 
 	// Converter function overwrites
