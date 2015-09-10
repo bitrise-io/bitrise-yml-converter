@@ -49,6 +49,8 @@ func getStepConverterFunctionMap() map[string]stepConverter {
 		steps.OldFabricCrashlyticsBetaDeployStepID:                  steps.ConvertFabricCrashlyticsBetaDeploy,
 		steps.OldHockeyappDeployFlavorBitriseStepID:                 steps.ConvertHockeyappDeployFlavorBitrise,
 		steps.OldGitCloneStepID:                                     steps.ConvertGitClone,
+		steps.OldFastlaneStepID:                                     steps.Convertfastlane,
+		steps.OldResourceArchiveDownloaderStepID:                    steps.ConvertResourceArchiveDownloader,
 	}
 }
 
