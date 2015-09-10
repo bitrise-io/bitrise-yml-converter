@@ -53,6 +53,7 @@ func ConvertXcodeBuilderFlavorBitriseCreateArchive(convertedWorkflowStep stepman
 
 	newStepID := NewXcodeArchiveStepID
 	inputConversionMap := map[string]string{
+		"workdir":      "XCODE_BUILDER_PROJECT_ROOT_DIR_PATH",
 		"project_path": "XCODE_BUILDER_PROJECT_PATH",
 		"scheme":       "XCODE_BUILDER_SCHEME",
 		"output_dir":   "XCODE_BUILDER_DEPLOY_DIR",
