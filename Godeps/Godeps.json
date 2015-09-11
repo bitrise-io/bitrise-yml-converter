@@ -12,13 +12,13 @@
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/bitrise/bitrise",
-			"Comment": "0.9.11-110-g90245bd",
-			"Rev": "90245bd1413facffb6d12e25ee9e87f441c1d229"
+			"Comment": "1.0.0-2-g9a0b9b1",
+			"Rev": "9a0b9b18eb2a0e3365a8e31732840f2dc6c56810"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/bitrise/models",
-			"Comment": "0.9.11-110-g90245bd",
-			"Rev": "90245bd1413facffb6d12e25ee9e87f441c1d229"
+			"Comment": "1.0.0-2-g9a0b9b1",
+			"Rev": "9a0b9b18eb2a0e3365a8e31732840f2dc6c56810"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/envman/models",
