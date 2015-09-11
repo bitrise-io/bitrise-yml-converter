@@ -115,6 +115,7 @@ func (oldStep StepModel) Convert() (stepmanModels.StepModel, error) {
 		ProjectTypeTags:     oldStep.ProjectTypeTags,
 		TypeTags:            oldStep.TypeTags,
 		IsRequiresAdminUser: pointers.NewBoolPtr(oldStep.IsRequiresAdminUser),
+		IsAlwaysRun:         pointers.NewBoolPtr(oldStep.IsAlwaysRun),
 		Inputs:              inputs,
 		Outputs:             outputs,
 	}
