@@ -140,7 +140,7 @@ func generateTriggerMap(workflowIDs []string) []bitriseModels.TriggerMapItemMode
 	for _, workflowID := range workflowIDs {
 		triggerItem := bitriseModels.TriggerMapItemModel{
 			Pattern:              workflowID,
-			IsPullRequestAllowed: true,
+			IsPullRequestAllowed: false,
 			WorkflowID:           workflowID,
 		}
 		triggerMap = append(triggerMap, triggerItem)
