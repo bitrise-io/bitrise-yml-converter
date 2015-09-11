@@ -108,6 +108,10 @@ func ConvertOldWorkflow(oldWorkflow oldmodels.WorkflowModel) (bitriseModels.Work
 			log.Infof("Step (%s) not convertable", oldStepID)
 			fmt.Println()
 
+			if err := newStep.FillMissingDefaults(); err != nil {
+				return bitriseModels.WorkflowModel{}, "", err
+			}
+
 			_, _, version := oldStep.GetStepLibIDVersionData()
 
 			stepIDDataString := "_::" + newStep.Source.Git + "@" + version
