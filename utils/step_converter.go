@@ -100,6 +100,7 @@ func ConvertStep(diffStep stepmanModels.StepModel, newStepID string, inputConver
 	if diffStep.Title != nil {
 		originalStep.Title = pointers.NewStringPtr(*diffStep.Title)
 	}
+
 	if diffStep.IsAlwaysRun != nil {
 		originalStep.IsAlwaysRun = pointers.NewBoolPtr(*diffStep.IsAlwaysRun)
 	}
