@@ -24,7 +24,7 @@ func Run() {
 	app := cli.NewApp()
 	app.Name = path.Base(os.Args[0])
 	app.Usage = "Bitrise Converter toolkit"
-	app.Version = "0.0.1"
+	app.Version = "1.0.0"
 
 	app.Author = ""
 	app.Email = ""
